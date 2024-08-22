@@ -1,0 +1,5 @@
+PARAMETERS_FILE_PATH=parameters/july_2024_data_parameters.yaml
+python python/read_plates_and_incorporate_sample_locations.py --parameters $PARAMETERS_FILE_PATH
+python python/incorporate_calibration_concentrations.py --parameters $PARAMETERS_FILE_PATH
+python python/fit_calibration_curves.py --parameters $PARAMETERS_FILE_PATH
+python python/estimate_concentrations.py --parameters $PARAMETERS_FILE_PATH
