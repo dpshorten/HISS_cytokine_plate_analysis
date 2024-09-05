@@ -4,6 +4,7 @@ output directory path: "/home/david/Projects/HISS_plate_analysis/output"
 plate sample locations relative path : "plate_sample_locations"
 plate sample locations file name prefix: "plate_"
 calibration concentrations file name: "expected_values.xlsx"
+quality control concentrations file name: "quality_control_concentrations.csv"
 
 plate data with locations file name: "plate_data_with_locations.csv"
 plate data with locations and calibration concentrations file name: "plate_data_with_locations_and_calibration_concentrations.csv"
