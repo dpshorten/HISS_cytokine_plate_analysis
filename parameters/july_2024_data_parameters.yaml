@@ -23,6 +23,7 @@ list of analytes:
   - "MCP-1"
   - "TNF-a"
 
+quantity for estimation: "Median"
 calibration curve model: "five parameter logistic"
 calibration curve num points for inverse estimation: 1000
 
@@ -49,6 +50,9 @@ plate number to file associations:
     file plate number: 1
   6:
     file name: "Plate_06_RunResults_PLATE_04112024_RUN000.csv"
+    file plate number: 1
+  7:
+    file name: "PlateRunResults_Plate 7 180424 HISS.csv"
     file plate number: 1
   8:
     file name: "Plate_08_RunResults_PLATE_05032024_RUN000.csv"

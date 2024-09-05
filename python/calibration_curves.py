@@ -44,7 +44,9 @@ def merge_calibration_concentrations_with_plate_data(
 def fit_calibration_curve(dict_parameters, pd_df_plate_data, str_analyte, plate_number):
 
     np_calibration_concentrations = pd_df_plate_data[str_analyte + " Expected"].values
-    np_measured_fluorescent_intensity = pd_df_plate_data[str_analyte + " Mean"].values
+    np_measured_fluorescent_intensity = (
+        pd_df_plate_data[str_analyte + " " + dict_parameters["quantity for estimation"]].values
+    )
     np_measured_fluorescent_intensity_std_dev = pd_df_plate_data[str_analyte + " Std Dev"].values
 
     try:
@@ -138,9 +140,11 @@ class ConcentrationEstimator:
                 *dict_fit_results["fitted parameters"],
             )
 
-    def estimate_concentration(self, pd_series_row):
+    def estimate_concentration(self, pd_series_row, dict_parameters):
 
-        measured_fluorescent_intensity = pd_series_row[self.str_analyte + " Mean"]
+        measured_fluorescent_intensity = (
+            pd_series_row[self.str_analyte + " " + dict_parameters["quantity for estimation"]]
+        )
         plate_number = pd_series_row["plate number"]
 
         # TODO: Look into better ways to do this
@@ -177,7 +181,11 @@ def estimate_concentrations(
         )
 
         pd_df_unknowns[dict_parameters["column name prefix for estimated concentrations"] + str_analyte] = (
-            pd_df_unknowns.apply(concentration_estimator.estimate_concentration, axis=1)
+            pd_df_unknowns.apply(
+                lambda pd_series_row: concentration_estimator.estimate_concentration(
+                    pd_series_row, dict_parameters
+                ), axis=1
+            )
         )
 
     list_columns_to_drop = [column_name for column_name in pd_df_unknowns.columns if 'Expected' in column_name]
