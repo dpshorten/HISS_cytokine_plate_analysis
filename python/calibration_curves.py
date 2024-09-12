@@ -56,7 +56,7 @@ def fit_calibration_curve(dict_parameters, pd_df_plate_data, str_analyte, plate_
             np_measured_fluorescent_intensity,  # y
             sigma=np_measured_fluorescent_intensity_std_dev,
             #TDDO: add to parameters file
-            maxfev=int(1e6)
+            maxfev=int(dict_parameters["calibration curve maxfev"])
 
         )
         #print(np_fitted_parameters)
@@ -130,7 +130,7 @@ class ConcentrationEstimator:
             self.dict_np_calibration_curve_concentrations[plate_number] = np.logspace(
             0,
                 np.log(max(pd_df_calibration_concentrations[str_analyte + " Expected"])) / np.log(10),
-                dict_parameters["calibration curve num points for inverse estimation"],
+                int(dict_parameters["calibration curve num points for inverse estimation"]),
                 base = 10,
             )
 
