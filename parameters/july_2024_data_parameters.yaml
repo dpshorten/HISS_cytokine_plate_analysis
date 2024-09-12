@@ -25,7 +25,7 @@ list of analytes:
 
 quantity for estimation: "Median"
 calibration curve model: "five parameter logistic"
-calibration curve num points for inverse estimation: 1000
+calibration curve num points for inverse estimation: 10000
 
 column name prefix for estimated concentrations: "estimated concentration "
 

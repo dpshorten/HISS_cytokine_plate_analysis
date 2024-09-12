@@ -6,10 +6,10 @@ import math
 import functools
 
 def five_parameter_logistic_function(np_x, a, b, c, d, g):
-    return d + ((a - d) / np.power((1.0 + (((np.log(np_x) + 1)/ c) ** b)), g))
+    return d + ((a - d) / np.power((1.0 + (((np_x + 1)/ c) ** b)), g))
 
 def four_parameter_logistic_function(np_x, a, b, c, d):
-    return d + ((a - d) / (1.0 + (((np.log(np_x) + 1) / c) ** b)))
+    return d + ((a - d) / (1.0 + ((np_x + 1) / c) ** b))
 
 def get_calibration_curve_function(dict_parameters):
 
@@ -56,7 +56,8 @@ def fit_calibration_curve(dict_parameters, pd_df_plate_data, str_analyte, plate_
             np_measured_fluorescent_intensity,  # y
             sigma=np_measured_fluorescent_intensity_std_dev,
             #TDDO: add to parameters file
-            maxfev=10000
+            maxfev=int(1e6)
+
         )
         #print(np_fitted_parameters)
         dict_results = {
@@ -89,7 +90,7 @@ def fit_calibration_curves(dict_parameters, pd_df_plate_data_with_calibration_co
             ]
         )
         pd_df_plate_data = pd_df_plate_data[pd_df_plate_data["sample name annotations"].str.contains("Std")]
-        pd_df_plate_data = pd_df_plate_data[~pd_df_plate_data["sample name annotations"].str.contains("Std 0")]
+        #pd_df_plate_data = pd_df_plate_data[~pd_df_plate_data["sample name annotations"].str.contains("Std 0")]
 
         for str_analyte in dict_parameters["list of analytes"]:
 
@@ -127,7 +128,7 @@ class ConcentrationEstimator:
                 dict_fitted_calibration_curves["calibration curves by plate"][plate_number][str_analyte]
             )
             self.dict_np_calibration_curve_concentrations[plate_number] = np.logspace(
-                np.log(min(pd_df_calibration_concentrations[str_analyte + " Expected"])) / np.log(10),
+            0,
                 np.log(max(pd_df_calibration_concentrations[str_analyte + " Expected"])) / np.log(10),
                 dict_parameters["calibration curve num points for inverse estimation"],
                 base = 10,
