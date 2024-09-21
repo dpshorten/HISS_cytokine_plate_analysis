@@ -144,7 +144,10 @@ def process_data_for_individual_patient_plots(dict_parameters, pd_df_estimated_c
 
 def create_dash_app_object(dict_credentials, dict_pd_df_cohort_tables):
 
-    dash_app_object_lines = dash.Dash(__name__, url_base_pathname = "/individual_patients/")
+    dash_app_object_lines = dash.Dash(
+        __name__,
+        url_base_pathname = dict_parameters["dashboard url base"] + "individual_patients/"
+    )
     dash_auth_object = dash_auth.BasicAuth(
         dash_app_object_lines,
         dict_credentials
@@ -267,4 +270,4 @@ if __name__ == '__main__':
     # Create the Dash app object
     dash_app_object_lines = create_dash_app_object(dict_credentials, dict_pd_df_cohort_tables)
 
-    dash_app_object_lines.run(host='0.0.0.0', port=9010)
+    dash_app_object_lines.run(host='0.0.0.0', port=9999)

@@ -8,7 +8,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-EXPOSE 9010
+EXPOSE 9999
 
 WORKDIR /app/dashboards/individual_patients
 CMD ["python", "individual_patients_dashboard.py", "../../parameters/docker_dashboard_parameters.yaml"]
