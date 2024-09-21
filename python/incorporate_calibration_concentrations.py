@@ -18,7 +18,8 @@ def main():
     pd_df_plate_data = pd.read_csv(
         open(
             os.path.join(
-                dict_parameters["output directory path"],
+                dict_parameters["base directory path"],
+                dict_parameters["output directory"],
                 dict_parameters["plate data with locations file name"]
             ),
             "rb"
@@ -36,7 +37,8 @@ def main():
     pd_df_plate_data_with_calibration_concentrations.to_csv(
         open(
             os.path.join(
-                dict_parameters["output directory path"],
+                dict_parameters["base directory path"],
+                dict_parameters["output directory"],
                 dict_parameters["plate data with locations and calibration concentrations file name"]
             ),
             "wb"

@@ -117,7 +117,8 @@ def get_parsed_file_for_each_plate(dict_parameters):
     for plate_number in dict_parameters["plate number to file associations"].keys():
         dict_parsed_file_for_each_plate[plate_number] = parse_intelliflex_file(
             os.path.join(
-                dict_parameters["data directory path"],
+                dict_parameters["base directory path"],
+                dict_parameters["data directory"],
                 dict_parameters["plate number to file associations"][plate_number]["file name"]
             )
         )
@@ -129,9 +130,11 @@ def read_plate_sample_locations(dict_parameters):
     # Use a dict instead of list, so that we can keep the same indexing as the original plate files
     dict_plate_sample_locations = {}
     for i in dict_parameters["plate number to file associations"].keys():
+        # noinspection PyTypeChecker
         dict_plate_sample_locations[i] = pd.read_csv(
             os.path.join(
-                dict_parameters["data directory path"],
+                dict_parameters["base directory path"],
+                dict_parameters["data directory"],
                 dict_parameters["plate sample locations relative path"],
                 "{prefix}{i}.csv".format(prefix=dict_parameters["plate sample locations file name prefix"], i=i),
             ),
@@ -144,7 +147,8 @@ def read_and_clean_calibration_concentrations(dict_parameters):
 
     pd_df_calibration_concentrations = pd.read_excel(
         os.path.join(
-            dict_parameters["data directory path"],
+            dict_parameters["base directory path"],
+            dict_parameters["data directory"],
             dict_parameters["calibration concentrations file name"]
         )
     )

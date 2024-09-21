@@ -11,19 +11,22 @@ import dash_auth
 import pandas as pd
 pd.options.mode.chained_assignment = None
 
-sys.path.append('../python/')
+sys.path.append('../../python/')
 
 # Plotly Dash doesn't display error messages well, so we use logging
 import logging
 logging.basicConfig(level=logging.DEBUG, filename="dash_logs.log")
 
-def read_parameters_credentials_data():
+def read_parameters_credentials_data(str_parameters_path):
 
-    dict_parameters = yaml.safe_load(open("../parameters/july_2024_data_parameters.yaml", "r"))
+    dict_parameters = yaml.safe_load(open(str_parameters_path, "r"))
 
     pd_df_credentials = pd.read_csv(
         open(
-            dict_parameters["dashboard credentials file location"],
+            os.path.join(
+                dict_parameters["base directory path"],
+                dict_parameters["dashboard credentials file path"]
+            ),
             "rb"
         )
     )
@@ -32,7 +35,8 @@ def read_parameters_credentials_data():
     pd_df_estimated_concentrations = pd.read_csv(
         open(
             os.path.join(
-                dict_parameters["output directory path"],
+                dict_parameters["base directory path"],
+                dict_parameters["output directory"],
                 dict_parameters["estimated concentrations file name"]
             ),
             "rb"
@@ -254,7 +258,7 @@ def create_dash_app_object(dict_credentials, dict_pd_df_cohort_tables):
 if __name__ == '__main__':
 
     # Read the parameters, credentials and data
-    dict_parameters, dict_credentials, pd_df_estimated_concentrations = read_parameters_credentials_data()
+    dict_parameters, dict_credentials, pd_df_estimated_concentrations = read_parameters_credentials_data(sys.argv[1])
     # Process the data
     dict_pd_df_cohort_tables = process_data_for_individual_patient_plots(
         dict_parameters,
@@ -263,4 +267,4 @@ if __name__ == '__main__':
     # Create the Dash app object
     dash_app_object_lines = create_dash_app_object(dict_credentials, dict_pd_df_cohort_tables)
 
-    dash_app_object_lines.run(host='0.0.0.0', port=9999)
+    dash_app_object_lines.run(host='0.0.0.0', port=9010)

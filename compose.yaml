@@ -1,0 +1,7 @@
+services:
+  dash_app:
+    build:
+        context: .
+        dockerfile: dashboards/individual_patients/Dockerfile
+    ports:
+      - "9010:9010"

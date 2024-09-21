@@ -19,7 +19,8 @@ def main():
     pd_df_plate_data_with_calibration_concentrations = pd.read_csv(
         open(
             os.path.join(
-                dict_parameters["output directory path"],
+                dict_parameters["base directory path"],
+                dict_parameters["output directory"],
                 dict_parameters["plate data with locations and calibration concentrations file name"]
             ),
             "rb"
@@ -36,7 +37,8 @@ def main():
         dict_calibration_results,
         open(
             os.path.join(
-                dict_parameters["output directory path"],
+                dict_parameters["base directory path"],
+                dict_parameters["output directory"],
                 dict_parameters["fitted calibration curves file name"]
             ),
             "w"
