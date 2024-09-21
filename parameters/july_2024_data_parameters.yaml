@@ -11,6 +11,12 @@ plate data with locations and calibration concentrations file name: "plate_data_
 fitted calibration curves file name: "fitted_calibration_curves.yaml"
 estimated concentrations file name: "estimated_concentrations.csv"
 
+dashboard credentials file location: "/home/david/Projects/HISS_plate_analysis/parameters/dashboard_credentials.csv"
+
+list of cohort names:
+  - "Melbourne"
+  - "Adelaide"
+
 list of analytes:
   - "IFN-gamma"
   - "IL-1b"
@@ -31,7 +37,6 @@ calibration curve num points for inverse estimation: 1.0e+5
 column name prefix for estimated concentrations: "estimated concentration "
 
 # Plate 2 and 3 are in the same file, so this structure specifies how this is recorded.
-# Plate 7 is missing.
 # See the Readme for further details.
 plate number to file associations:
   1:
@@ -82,4 +87,6 @@ plate number to file associations:
   16:
     file name: "Plate_16_RunResults_PLATE_05292024_RUN000.csv"
     file plate number: 1
-
+  18:
+    file name: "PlateRunResults_PLATE_09122024_RUN000_xponent.csv"
+    file plate number: 1
