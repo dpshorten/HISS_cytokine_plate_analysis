@@ -1,5 +1,5 @@
 services:
-  dash_app:
+  individual_patients:
     build:
         context: .
         dockerfile: dashboards/individual_patients/Dockerfile
