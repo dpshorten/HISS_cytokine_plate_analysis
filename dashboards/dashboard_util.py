@@ -1,5 +1,4 @@
 import os
-import yaml
 import pandas as pd
 
 def get_base_base_directory_path(dict_parameters):
@@ -10,12 +9,10 @@ def get_base_base_directory_path(dict_parameters):
     return str_base_directory_path
 def read_credentials(dict_parameters):
 
-    str_base_directory_path = get_base_base_directory_path(dict_parameters)
-
     pd_df_credentials = pd.read_csv(
         open(
             os.path.join(
-                str_base_directory_path,
+                get_base_base_directory_path(dict_parameters),
                 dict_parameters["dashboard credentials file path"]
             ),
             "rb"
@@ -27,12 +24,10 @@ def read_credentials(dict_parameters):
 
 def read_data(dict_parameters):
 
-    str_base_directory_path = get_base_base_directory_path(dict_parameters)
-
     pd_df_estimated_concentrations = pd.read_csv(
         open(
             os.path.join(
-                str_base_directory_path,
+                get_base_base_directory_path(dict_parameters),
                 dict_parameters["output directory"],
                 dict_parameters["estimated concentrations file name"]
             ),

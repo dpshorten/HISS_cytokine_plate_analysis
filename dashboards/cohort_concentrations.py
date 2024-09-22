@@ -12,7 +12,7 @@ from analysis_util import separate_concentrations_into_cohorts_and_clean
 from dashboard_util import read_data
 
 
-dash.register_page(__name__, path='/individual_patients/')
+dash.register_page(__name__, path='/cohort_concentrations/')
 
 dict_parameters = yaml.safe_load(open("../parameters/july_2024_data_parameters.yaml", "r"))
 pd_df_estimated_concentrations = read_data(dict_parameters)
