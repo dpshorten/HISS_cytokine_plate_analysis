@@ -12,11 +12,6 @@ from analysis_util import separate_concentrations_into_cohorts_and_clean
 from dashboard_util import read_data
 
 
-# Plotly Dash doesn't display error messages well, so we use logging
-#import logging
-#logging.basicConfig(level=logging.DEBUG, filename="dash_logs.log")
-
-
 dash.register_page(__name__, path='/individual_patients/')
 
 dict_parameters = yaml.safe_load(open("../parameters/july_2024_data_parameters.yaml", "r"))
