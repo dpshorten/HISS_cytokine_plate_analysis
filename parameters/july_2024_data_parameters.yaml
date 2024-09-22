@@ -13,6 +13,7 @@ fitted calibration curves file name: "fitted_calibration_curves.yaml"
 estimated concentrations file name: "estimated_concentrations.csv"
 
 dashboard credentials file path: "parameters/dashboard_credentials.csv"
+dashboard url base: "/satellite_manoeuvres/"
 
 list of cohort names:
   - "Melbourne"

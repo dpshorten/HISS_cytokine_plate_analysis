@@ -3,7 +3,6 @@ import os
 import pandas as pd
 
 def read_parameters_credentials_data(str_parameters_path):
-
     dict_parameters = yaml.safe_load(open(str_parameters_path, "r"))
 
     pd_df_credentials = pd.read_csv(
@@ -79,11 +78,24 @@ def separate_concentrations_into_cohorts_and_clean(dict_parameters, pd_df_estima
     dict_pd_df_cohort_tables["Melbourne"]["time int"] = (
         dict_pd_df_cohort_tables["Melbourne"]["time code"].map(dict_melbourne_time_code_mapping)
     )
+
+    dict_adelaide_time_string_mapping = {
+        'Pre-1hr': '-1hr',
+        '15m': '15min',
+        '30m': '30min',
+        '0.5hr': '30min',
+    }
+    dict_pd_df_cohort_tables["Adelaide"]["time code"] = (
+        dict_pd_df_cohort_tables["Adelaide"]["time code"].map(
+            lambda x: x if x not in dict_adelaide_time_string_mapping else dict_adelaide_time_string_mapping[x],
+        )
+    )
+
     dict_adelaide_time_code_mapping = {
-        'Pre-1hr': 1,
         '-1hr': 1,
+        'Pre-1hr': 1,
         '15min': 2,
-        '0.5hr': 3,
+        '30min': 3,
         '1hr': 4,
         '2hr': 5,
         '4hr': 6,
