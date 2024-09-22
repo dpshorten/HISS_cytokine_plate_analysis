@@ -143,11 +143,13 @@ def read_plate_sample_locations(dict_parameters):
 
     return dict_plate_sample_locations
 
-def read_and_clean_calibration_concentrations(dict_parameters):
+def read_and_clean_calibration_concentrations(dict_parameters, str_base_directory_path=None):
 
+    if str_base_directory_path is None:
+        str_base_directory_path = dict_parameters["base directory path"]
     pd_df_calibration_concentrations = pd.read_excel(
         os.path.join(
-            dict_parameters["base directory path"],
+            str_base_directory_path,
             dict_parameters["data directory"],
             dict_parameters["calibration concentrations file name"]
         )
