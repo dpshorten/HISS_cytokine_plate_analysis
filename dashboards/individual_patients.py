@@ -1,4 +1,5 @@
 import sys
+import yaml
 import dash
 from dash import dcc, html, callback
 from dash.dependencies import Input, Output
@@ -7,7 +8,9 @@ import pandas as pd
 pd.options.mode.chained_assignment = None
 
 sys.path.append('../python/')
-from analysis_util import read_parameters_credentials_data, separate_concentrations_into_cohorts_and_clean
+from analysis_util import separate_concentrations_into_cohorts_and_clean
+from dashboard_util import read_data
+
 
 # Plotly Dash doesn't display error messages well, so we use logging
 #import logging
@@ -16,12 +19,8 @@ from analysis_util import read_parameters_credentials_data, separate_concentrati
 
 dash.register_page(__name__, path='/individual_patients/')
 
-
-# Read the parameters, credentials and data
-dict_parameters, dict_credentials, pd_df_estimated_concentrations = read_parameters_credentials_data(
-    '../parameters/july_2024_data_parameters.yaml'
-)
-# Process the data
+dict_parameters = yaml.safe_load(open("../parameters/july_2024_data_parameters.yaml", "r"))
+pd_df_estimated_concentrations = read_data(dict_parameters)
 dict_pd_df_cohort_tables = separate_concentrations_into_cohorts_and_clean(
     dict_parameters,
     pd_df_estimated_concentrations

@@ -1,13 +1,8 @@
 services:
-  individual_patients:
+  app:
     build:
         context: .
-        dockerfile: dashboards/individual_patients/Dockerfile
+        dockerfile: dashboards/Dockerfile
     ports:
       - "9999:9999"
-  cohort_concentrations:
-    build:
-      context: .
-      dockerfile: dashboards/cohort_concentrations/Dockerfile
-    ports:
-      - "9999:9999"
+

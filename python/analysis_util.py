@@ -2,32 +2,6 @@ import yaml
 import os
 import pandas as pd
 
-def read_parameters_credentials_data(str_parameters_path):
-    dict_parameters = yaml.safe_load(open(str_parameters_path, "r"))
-
-    pd_df_credentials = pd.read_csv(
-        open(
-            os.path.join(
-                dict_parameters["base directory path"],
-                dict_parameters["dashboard credentials file path"]
-            ),
-            "rb"
-        )
-    )
-    dict_credentials = dict(zip(pd_df_credentials['username'], pd_df_credentials['password']))
-
-    pd_df_estimated_concentrations = pd.read_csv(
-        open(
-            os.path.join(
-                dict_parameters["base directory path"],
-                dict_parameters["output directory"],
-                dict_parameters["estimated concentrations file name"]
-            ),
-            "rb"
-        )
-    )
-
-    return dict_parameters, dict_credentials, pd_df_estimated_concentrations
 
 def separate_concentrations_into_cohorts_and_clean(dict_parameters, pd_df_estimated_concentrations):
 

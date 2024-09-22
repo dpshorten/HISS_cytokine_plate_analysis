@@ -1,24 +1,16 @@
 import dash
 import dash_auth
 from dash import Dash, html, dcc
-import pandas as pd
-import os
 import yaml
 
+from dashboard_util import read_credentials
+
 dict_parameters = yaml.safe_load(open("../parameters/july_2024_data_parameters.yaml", "r"))
-pd_df_credentials = pd.read_csv(
-        open(
-            os.path.join(
-                dict_parameters["base directory path"],
-                dict_parameters["dashboard credentials file path"]
-            ),
-            "rb"
-        )
-    )
-dict_credentials = dict(zip(pd_df_credentials['username'], pd_df_credentials['password']))
+dict_credentials = read_credentials(dict_parameters)
 
 dash_app_object = Dash(
     __name__,
+    url_base_pathname = dict_parameters["dashboard url base"],
     use_pages=True,
     pages_folder=".",
 )

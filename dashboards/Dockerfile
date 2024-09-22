@@ -10,5 +10,6 @@ COPY . .
 
 EXPOSE 9999
 
-WORKDIR /app/dashboards/individual_patients
-CMD ["python", "individual_patients_dashboard.py", "../../parameters/docker_dashboard_parameters.yaml"]
+ENV ON_DOCKER=True
+WORKDIR /app/dashboards/
+CMD ["python", "app_runner.py", "../parameters/july_2024_data_parameters.yaml"]
