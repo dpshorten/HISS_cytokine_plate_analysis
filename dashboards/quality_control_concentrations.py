@@ -147,8 +147,8 @@ def update_graph(int_plate_number, str_qc_label):
         )
 
     fig.update_layout(
+        xaxis_title="Analyte",
         xaxis=dict(
-            title="Analyte",
             showgrid=False,
             zeroline=False,
             showline=True,
@@ -158,8 +158,8 @@ def update_graph(int_plate_number, str_qc_label):
             ticks='outside',
             tickfont=dict(family='Arial', size=14, color='black'),
         ),
+        yaxis_title="Concentration (pg/ml)",
         yaxis=dict(
-            title="Concentration (pg/ml)",
             showgrid=True,
             zeroline=True,
             showline=True,

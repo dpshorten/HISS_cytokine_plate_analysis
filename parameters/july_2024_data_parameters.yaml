@@ -93,3 +93,9 @@ plate number to file associations:
   18:
     file name: "PlateRunResults_PLATE_09122024_RUN000_xponent.csv"
     file plate number: 1
+  19:
+    file name: "PlateRunResults_plate19_0010A_0014A kit2.2_09182024_RUN000.csv"
+    file plate number: 1
+  20:
+    file name: "PlateRunResults_plate20_0015A_0016A_kit2.3_09262024_RUN000.csv"
+    file plate number: 1
