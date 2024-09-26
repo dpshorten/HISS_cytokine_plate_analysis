@@ -15,6 +15,11 @@ import plate_util
 import calibration_curves
 from plotly_figure_parameters import dict_y_axis_parameters, dict_font_parameters, dict_x_axis_parameters_continuous
 
+DICT_INCLUSION_COLOURS = {
+    "included": "blue",
+    "excluded": "red"
+}
+
 dash.register_page(__name__, path='/calibration_curves/')
 
 dict_parameters = yaml.safe_load(open("../parameters/july_2024_data_parameters.yaml", "r"))
@@ -116,6 +121,29 @@ def update_graph(plate_number, str_analyte, str_sample_name):
     pd_df_one_plates_data = pd_df_one_plates_data[pd_df_one_plates_data["sample name annotations"].str.contains("Std")]
     # pd_df_one_plates_data = pd_df_one_plates_data[~pd_df_one_plates_data["sample name annotations"].str.contains("Std 0")]
 
+    dict_LOO_results = dict_fit_results["dict LOO results"]
+    list_LOO_plate_rows = []
+    list_LOO_plate_columns = []
+    list_LOO_excluded = []
+    for str_LOO_sample_name in dict_LOO_results.keys():
+        list_LOO_plate_rows.append(dict_LOO_results[str_LOO_sample_name]["plate row"])
+        list_LOO_plate_columns.append(dict_LOO_results[str_LOO_sample_name]["plate column"])
+        list_LOO_excluded.append("excluded")
+    pd_df_LOO_results = pd.DataFrame(
+        {
+            "plate row": list_LOO_plate_rows,
+            "plate column": list_LOO_plate_columns,
+            "inclusion": list_LOO_excluded,
+        }
+    )
+    pd_df_one_plates_data = pd_df_one_plates_data.merge(
+        pd_df_LOO_results,
+        how="left",
+        on=["plate row", "plate column"],
+    )
+    pd_df_one_plates_data = pd_df_one_plates_data.fillna({"inclusion": "included"})
+
+
     np_curve_plot_points = np.logspace(
         0,
         np.log(max(pd_df_one_plates_data[str_analyte + " Expected"])) / np.log(10),
@@ -124,26 +152,33 @@ def update_graph(plate_number, str_analyte, str_sample_name):
         endpoint=False,
     )
 
-    dict_marker_properties = {"size": 7}
-
     fig = go.Figure()
-    fig.add_traces(
-        go.Scatter(
-            x=pd_df_one_plates_data[str_analyte + " Expected"],
-            y=pd_df_one_plates_data[str_analyte + " " + dict_parameters["quantity for estimation"]],
-            error_y={
-                'type': 'data',
-                'array': (
-                        pd_df_one_plates_data[str_analyte + " Std Dev"] /
-                        np.sqrt(pd_df_one_plates_data[str_analyte + " Count"])
-                ),
-                'visible': True
-            },
-            mode='markers',
-            name='calibration concentrations',
-            marker=dict_marker_properties,
+    for str_inclusion, pd_df_group in pd_df_one_plates_data.groupby('inclusion'):
+        fig.add_traces(
+            go.Scatter(
+                x=pd_df_group[str_analyte + " Expected"],
+                y=pd_df_group[str_analyte + " " + dict_parameters["quantity for estimation"]],
+                error_y={
+                    'type': 'data',
+                    'array': (
+                            pd_df_group[str_analyte + " Std Dev"] /
+                            np.sqrt(pd_df_group[str_analyte + " Count"])
+                    ),
+                    'visible': True,
+                    #'color' : list(pd_df_group["inclusion"].map(DICT_INCLUSION_COLOURS).values),
+                },
+                mode='markers',
+                name=str_inclusion + " standard",
+                marker=dict(
+                    size=7,
+                    color=DICT_INCLUSION_COLOURS[str_inclusion],
+                    #colorscale='Viridis',
+                    #showscale=True
+                )
+
+            )
         )
-    )
+
     fig.add_traces(
         go.Scatter(
             x=np_curve_plot_points,
@@ -153,9 +188,14 @@ def update_graph(plate_number, str_analyte, str_sample_name):
             ),
             mode='lines',
             name='calibration curve',
-            line={"width": 2},
+            line={
+                "width": 2,
+                "color": "darkgreen",
+            },
+
         )
     )
+
     if str_sample_name:
         pd_df_estimations_for_selection = (
             pd_df_estimated_concentrations[
@@ -179,7 +219,7 @@ def update_graph(plate_number, str_analyte, str_sample_name):
                 },
                 mode='markers',
                 name='estimated concentrations',
-                marker=dict_marker_properties,
+                marker={'size': 7, 'color': 'black'},
             )
         )
     fig.update_layout(

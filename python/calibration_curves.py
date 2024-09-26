@@ -11,6 +11,13 @@ def five_parameter_logistic_function(np_x, a, b, c, d, g):
 def four_parameter_logistic_function(np_x, a, b, c, d):
     return d + ((a - d) / (1.0 + ((np_x + 1) / c) ** b))
 
+def get_calibration_curve_concenration_points(dict_parameters, float_max_concentration):
+    return np.logspace(
+        0,
+        np.log(float_max_concentration) / np.log(10),
+        int(dict_parameters["calibration curve num points for inverse estimation"]),
+        base = 10,
+    )
 def get_calibration_curve_function(dict_parameters):
 
     if dict_parameters["calibration curve model"] == "five parameter logistic":
@@ -41,25 +48,24 @@ def merge_calibration_concentrations_with_plate_data(
 
     return pd_df_merged_plate_data
 
-def fit_calibration_curve(dict_parameters, pd_df_plate_data, str_analyte, plate_number):
-
-    np_calibration_concentrations = pd_df_plate_data[str_analyte + " Expected"].values
-    np_measured_fluorescent_intensity = (
-        pd_df_plate_data[str_analyte + " " + dict_parameters["quantity for estimation"]].values
-    )
-    np_measured_fluorescent_intensity_std_dev = pd_df_plate_data[str_analyte + " Std Dev"].values
-
+def fit_calibration_curve(
+        dict_parameters,
+        np_calibration_concentrations,
+        np_measured_fluorescent_intensity,
+        np_measured_fluorescent_intensity_std_dev,
+        plate_number,
+        str_analyte
+):
     try:
         np_fitted_parameters, np_parameter_covariance = curve_fit(
             get_calibration_curve_function(dict_parameters),
             np_calibration_concentrations,  # x
             np_measured_fluorescent_intensity,  # y
             sigma=np_measured_fluorescent_intensity_std_dev,
-            #TDDO: add to parameters file
+            # TDDO: add to parameters file
             maxfev=int(dict_parameters["calibration curve maxfev"])
-
         )
-        #print(np_fitted_parameters)
+        # print(np_fitted_parameters)
         dict_results = {
             "model": dict_parameters["calibration curve model"],
             "fitted parameters": np_fitted_parameters.tolist(),
@@ -75,6 +81,171 @@ def fit_calibration_curve(dict_parameters, pd_df_plate_data, str_analyte, plate_
         }
 
     return dict_results
+
+def fit_calibration_curve_with_left_out_points(
+        dict_parameters,
+        plate_number,
+        str_analyte,
+        np_calibration_concentrations,
+        np_measured_fluorescent_intensity,
+        np_measured_fluorescent_intensity_std_dev,
+        list_left_out_indices
+):
+    np_calibration_concentrations_temp = np.delete(np_calibration_concentrations, list_left_out_indices)
+    np_measured_fluorescent_intensity_temp = np.delete(np_measured_fluorescent_intensity, list_left_out_indices)
+    np_measured_fluorescent_intensity_std_dev_temp = np.delete(np_measured_fluorescent_intensity_std_dev, list_left_out_indices)
+
+    dict_fit_results = fit_calibration_curve(
+        dict_parameters,
+        np_calibration_concentrations_temp,
+        np_measured_fluorescent_intensity_temp,
+        np_measured_fluorescent_intensity_std_dev_temp,
+        plate_number,
+        str_analyte
+    )
+
+    return dict_fit_results
+
+def one_iteration_of_greedy_LOO(
+        dict_parameters,
+        plate_number,
+        str_analyte,
+        np_calibration_concentrations,
+        np_measured_fluorescent_intensity,
+        np_measured_fluorescent_intensity_std_dev,
+        list_calibration_names,
+        dict_left_out_indices
+):
+    index_of_highest_LOO_statistic = -1
+    highest_LOO_statistic = 0
+    list_left_out_indices = [dict_left_out_indices[key]["left out index"] for key in dict_left_out_indices.keys()]
+    print("left out list", list_left_out_indices)
+    for i in range(len(np_calibration_concentrations)):
+        if np_calibration_concentrations[i] == 0:
+            continue
+
+        dict_fit_results_temp = fit_calibration_curve_with_left_out_points(
+            dict_parameters,
+            plate_number,
+            str_analyte,
+            np_calibration_concentrations,
+            np_measured_fluorescent_intensity,
+            np_measured_fluorescent_intensity_std_dev,
+            list_left_out_indices + [i],
+        )
+
+        if dict_fit_results_temp["fitted parameters"] == "fitting error":
+            return dict_fit_results_temp
+
+        np_fitted_parameters = dict_fit_results_temp["fitted parameters"]
+        np_calibration_curve_points = get_calibration_curve_concenration_points(
+            dict_parameters,
+            max(np_calibration_concentrations)
+        )
+        np_fitted_fluorescent_intensities = get_calibration_curve_function(dict_parameters)(
+            np_calibration_curve_points,
+            *np_fitted_parameters
+        )
+        estimated_LOO_concentration = np.interp(
+            np_measured_fluorescent_intensity[i],
+            np_fitted_fluorescent_intensities,
+            np_calibration_curve_points,
+        )
+
+        float_LOO_statistic = float(
+            np.abs(
+                estimated_LOO_concentration - np_calibration_concentrations[i]
+            )
+            / np_calibration_concentrations[i]
+        )
+        if (
+                (float_LOO_statistic > highest_LOO_statistic) and
+                (i not in list_left_out_indices) and
+                list_calibration_names[i] not in dict_left_out_indices
+        ):
+            highest_LOO_statistic = float_LOO_statistic
+            index_of_highest_LOO_statistic = i
+
+    return highest_LOO_statistic, index_of_highest_LOO_statistic
+def fit_calibration_curve_and_perform_LOO(
+        dict_parameters,
+        pd_df_plate_data,
+        str_analyte,
+        plate_number
+):
+
+    np_calibration_concentrations = pd_df_plate_data[str_analyte + " Expected"].values
+    list_calibration_names = pd_df_plate_data["sample name annotations"].values
+    list_calibration_rows = pd_df_plate_data["plate row"].values
+    list_calibration_columns = pd_df_plate_data["plate column"].values
+    np_measured_fluorescent_intensity = (
+        pd_df_plate_data[str_analyte + " " + dict_parameters["quantity for estimation"]].values
+    )
+    np_measured_fluorescent_intensity_std_dev = pd_df_plate_data[str_analyte + " Std Dev"].values
+
+    if dict_parameters["perform LOO check on calibration points"]:
+        # Note that the keys of this dictionary are the names of the calibration standards
+        # This is because we do not want to leave out a standard twice
+        dict_left_out_indices = {}
+        # TODO: change this to a greedy approach
+        highest_LOO_statistic = dict_parameters["LOO check threshold"] + 1
+        while highest_LOO_statistic > dict_parameters["LOO check threshold"]:
+
+            highest_LOO_statistic, index_of_highest_LOO_statistic = one_iteration_of_greedy_LOO(
+                dict_parameters,
+                plate_number,
+                str_analyte,
+                np_calibration_concentrations,
+                np_measured_fluorescent_intensity,
+                np_measured_fluorescent_intensity_std_dev,
+                list_calibration_names,
+                dict_left_out_indices
+            )
+
+            print(highest_LOO_statistic, index_of_highest_LOO_statistic)
+            if (highest_LOO_statistic > dict_parameters["LOO check threshold"]):
+                if list_calibration_names[index_of_highest_LOO_statistic] in dict_left_out_indices:
+                    if (
+                            highest_LOO_statistic >
+                            dict_left_out_indices[list_calibration_names[index_of_highest_LOO_statistic]]["LOO statistic"]
+                    ):
+                        dict_left_out_indices[list_calibration_names[index_of_highest_LOO_statistic]] = {
+                            "left out index": index_of_highest_LOO_statistic,
+                            "LOO statistic": highest_LOO_statistic,
+                            "plate row": list_calibration_rows[index_of_highest_LOO_statistic],
+                            "plate column": int(list_calibration_columns[index_of_highest_LOO_statistic]),
+                        }
+                else:
+                    dict_left_out_indices[list_calibration_names[index_of_highest_LOO_statistic]] = {
+                        "left out index": index_of_highest_LOO_statistic,
+                        "LOO statistic": highest_LOO_statistic,
+                        "plate row": list_calibration_rows[index_of_highest_LOO_statistic],
+                        "plate column": int(list_calibration_columns[index_of_highest_LOO_statistic]),
+                    }
+        print(f"plate {plate_number}, analyte {str_analyte}, {dict_left_out_indices}")
+        list_left_out_indices = [dict_left_out_indices[key]["left out index"] for key in dict_left_out_indices.keys()]
+        dict_fit_results = fit_calibration_curve_with_left_out_points(
+            dict_parameters,
+            plate_number,
+            str_analyte,
+            np_calibration_concentrations,
+            np_measured_fluorescent_intensity,
+            np_measured_fluorescent_intensity_std_dev,
+            list_left_out_indices
+        )
+        dict_fit_results["dict LOO results"] = dict_left_out_indices
+
+    else:
+        dict_fit_results = fit_calibration_curve(
+            dict_parameters,
+            np_calibration_concentrations,
+            np_measured_fluorescent_intensity,
+            np_measured_fluorescent_intensity_std_dev,
+            plate_number,
+            str_analyte
+        )
+
+    return dict_fit_results
 
 def fit_calibration_curves(dict_parameters, pd_df_plate_data_with_calibration_concentrations):
 
@@ -94,7 +265,7 @@ def fit_calibration_curves(dict_parameters, pd_df_plate_data_with_calibration_co
 
         for str_analyte in dict_parameters["list of analytes"]:
 
-            dict_calibration_curves_for_this_plate[str_analyte] = fit_calibration_curve(
+            dict_calibration_curves_for_this_plate[str_analyte] = fit_calibration_curve_and_perform_LOO(
                 dict_parameters,
                 pd_df_plate_data,
                 str_analyte,
@@ -127,11 +298,15 @@ class ConcentrationEstimator:
             dict_fit_results = (
                 dict_fitted_calibration_curves["calibration curves by plate"][plate_number][str_analyte]
             )
-            self.dict_np_calibration_curve_concentrations[plate_number] = np.logspace(
-            0,
-                np.log(max(pd_df_calibration_concentrations[str_analyte + " Expected"])) / np.log(10),
-                int(dict_parameters["calibration curve num points for inverse estimation"]),
-                base = 10,
+            # self.dict_np_calibration_curve_concentrations[plate_number] = np.logspace(
+            # 0,
+            #     np.log(max(pd_df_calibration_concentrations[str_analyte + " Expected"])) / np.log(10),
+            #     int(dict_parameters["calibration curve num points for inverse estimation"]),
+            #     base = 10,
+            # )
+            self.dict_np_calibration_curve_concentrations[plate_number] = get_calibration_curve_concenration_points(
+                dict_parameters,
+                max(pd_df_calibration_concentrations[str_analyte + " Expected"])
             )
 
             # if self.dict_fit_results["fitted parameters"] == "fitting error":
@@ -155,6 +330,7 @@ class ConcentrationEstimator:
             self.dict_np_calibration_curve_concentrations[plate_number]
         )
 
+        # TODO: Maybe do rounding further down the pipeline
         return np.around(estimated_concentration, 3)
 
 def estimate_concentrations(

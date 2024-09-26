@@ -37,6 +37,9 @@ calibration curve model: "five parameter logistic"
 calibration curve maxfev: 1.0e+6
 calibration curve num points for inverse estimation: 1.0e+5
 
+perform LOO check on calibration points: True
+LOO check threshold: 0.8
+
 column name prefix for estimated concentrations: "estimated concentration "
 
 # Plate 2 and 3 are in the same file, so this structure specifies how this is recorded.
