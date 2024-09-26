@@ -94,31 +94,31 @@ def update_graph(str_patient_number, str_data_type):
         str_y_label = "diff. in concentration (pg/ml)"
 
     if str_patient_number in list_patient_ids_melbourne:
-        dict_x_ticks = dict(
-            tickmode='array',
-            tickvals=[1, 2, 3, 4, 5],
-            ticktext=['minus 1wk', 'minus 1hr', 'plus 3hr', 'plus 7hr', 'plus 25hr'],
-        )
+        list_x_tickvals=[1, 2, 3, 4, 5]
+        list_x_ticktext=['minus 1wk', 'minus 1hr', 'plus 3hr', 'plus 7hr', 'plus 25hr']
     elif str_patient_number in list_patient_ids_adelaide:
-        dict_x_ticks = dict(
+        list_x_tickvals=[1, 2, 3, 4, 5, 6, 7]
+        list_x_ticktext=['minus 1hr', 'plus 15min', 'plus 30min', 'plus 1hr', 'plus 2hr', 'plus 4hr', 'plus 8hr']
+
+    fig.update_layout(
+        xaxis=dict(
+            title="time",
             tickmode='array',
-            tickvals=[1, 2, 3, 4, 5, 6, 7],
-            ticktext=['minus 1hr', 'plus 15min', 'plus 30min', 'plus 1hr', 'plus 2hr', 'plus 4hr', 'plus 8hr'],
+            tickvals=list_x_tickvals,
+            ticktext=list_x_ticktext,
             showgrid=True,
             zeroline=True,
             showline=True,
             gridcolor='darkgrey',
-        )
-
-    fig.update_layout(
-        xaxis_title="time",
-        xaxis=dict_x_ticks,
+            zerolinecolor='darkgrey',
+        ),
         yaxis=dict(
             title=str_y_label,
             showgrid=True,
             zeroline=True,
             showline=True,
             gridcolor='darkgrey',
+            zerolinecolor='darkgrey',
             linecolor='black',
             linewidth=2,
         ),

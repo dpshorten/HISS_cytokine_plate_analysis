@@ -183,8 +183,25 @@ def update_graph(plate_number, str_analyte, str_sample_name):
         )
     fig.update_layout(
         xaxis_type="log",
-        xaxis_title="concentration (pg/ml)",
-        yaxis_title="fluorescent intensity",
+        xaxis=dict(
+            title="concentration (pg/ml)",
+            tickmode='array',
+            showgrid=True,
+            zeroline=True,
+            showline=True,
+            gridcolor='darkgrey',
+            zerolinecolor='darkgrey',
+        ),
+        yaxis=dict(
+            title="fluorescent intensity",
+            showgrid=True,
+            zeroline=True,
+            showline=True,
+            gridcolor='darkgrey',
+            zerolinecolor='darkgrey',
+            linecolor='black',
+            linewidth=2,
+        ),
         font=dict(
             family="Arial",
             size=16,

@@ -104,26 +104,27 @@ def update_graph(str_cohort_name, str_analyte, str_data_type, str_plot_type):
     elif str_data_type == "differences":
         str_y_label = "diff. in concentration (pg/ml)"
     if str_cohort_name == "Melbourne":
-        dict_x_ticks = dict(
-            tickmode='array',
-            tickvals=[1, 2, 3, 4, 5],
-            ticktext=['minus 1wk', 'minus 1hr', 'plus 3hr', 'plus 7hr', 'plus 25hr'],
-        )
+        list_x_tickvals=[1, 2, 3, 4, 5]
+        list_x_ticktext=['minus 1wk', 'minus 1hr', 'plus 3hr', 'plus 7hr', 'plus 25hr']
+
     elif str_cohort_name == "Adelaide":
-        dict_x_ticks = dict(
-            tickmode='array',
-            tickvals=[1, 2, 3, 4, 5, 6, 7],
-            ticktext=['minus 1hr', 'plus 15min', 'plus 30min', 'plus 1hr', 'plus 2hr', 'plus 4hr', 'plus 8hr'],
-        )
+        list_x_tickvals=[1, 2, 3, 4, 5, 6, 7]
+        list_x_ticktext=['minus 1hr', 'plus 15min', 'plus 30min', 'plus 1hr', 'plus 2hr', 'plus 4hr', 'plus 8hr']
 
     fig.update_layout(
-        xaxis_title="time",
-        xaxis=dict_x_ticks,
+        xaxis=dict(
+            title="time",
+            tickmode='array',
+            tickvals=list_x_tickvals,
+            ticktext=list_x_ticktext,
+        ),
         yaxis=dict(
             title=str_y_label,
             showgrid=True,
             zeroline=True,
             showline=True,
+            gridcolor='darkgrey',
+            zerolinecolor='darkgrey',
             linecolor='black',
             linewidth=2,
         ),
