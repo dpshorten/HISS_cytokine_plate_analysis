@@ -104,6 +104,10 @@ def update_graph(str_patient_number, str_data_type):
             tickmode='array',
             tickvals=[1, 2, 3, 4, 5, 6, 7],
             ticktext=['minus 1hr', 'plus 15min', 'plus 30min', 'plus 1hr', 'plus 2hr', 'plus 4hr', 'plus 8hr'],
+            showgrid=True,
+            zeroline=True,
+            showline=True,
+            gridcolor='darkgrey',
         )
 
     fig.update_layout(
@@ -114,6 +118,7 @@ def update_graph(str_patient_number, str_data_type):
             showgrid=True,
             zeroline=True,
             showline=True,
+            gridcolor='darkgrey',
             linecolor='black',
             linewidth=2,
         ),
