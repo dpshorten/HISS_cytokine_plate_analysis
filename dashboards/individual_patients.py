@@ -10,6 +10,7 @@ pd.options.mode.chained_assignment = None
 sys.path.append('../python/')
 from analysis_util import separate_concentrations_into_cohorts_and_clean
 from dashboard_util import read_data
+from plotly_figure_parameters import dict_y_axis_parameters, dict_font_parameters, dict_x_axis_parameters_continuous
 
 
 dash.register_page(__name__, path='/individual_patients/')
@@ -101,32 +102,13 @@ def update_graph(str_patient_number, str_data_type):
         list_x_ticktext=['minus 1hr', 'plus 15min', 'plus 30min', 'plus 1hr', 'plus 2hr', 'plus 4hr', 'plus 8hr']
 
     fig.update_layout(
-        xaxis=dict(
-            title="time",
-            tickmode='array',
-            tickvals=list_x_tickvals,
-            ticktext=list_x_ticktext,
-            showgrid=True,
-            zeroline=True,
-            showline=True,
-            gridcolor='darkgrey',
-            zerolinecolor='darkgrey',
-        ),
-        yaxis=dict(
-            title=str_y_label,
-            showgrid=True,
-            zeroline=True,
-            showline=True,
-            gridcolor='darkgrey',
-            zerolinecolor='darkgrey',
-            linecolor='black',
-            linewidth=2,
-        ),
-        font=dict(
-            family="Arial",
-            size=16,
-            color="black"
-        )
+        xaxis=dict_x_axis_parameters_continuous,
+        yaxis=dict_y_axis_parameters,
+        xaxis_title="time",
+        yaxis_title=str_y_label,
+        xaxis_tickvals=list_x_tickvals,
+        xaxis_ticktext=list_x_ticktext,
+        font=dict_font_parameters,
     )
     return fig
 

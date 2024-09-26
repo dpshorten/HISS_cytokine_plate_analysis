@@ -10,6 +10,7 @@ pd.options.mode.chained_assignment = None
 
 sys.path.append('../python/')
 from dashboard_util import read_data, get_base_base_directory_path
+from plotly_figure_parameters import dict_y_axis_parameters, dict_font_parameters, dict_x_axis_parameters_categorical
 
 
 dash.register_page(__name__, path='/quality_control_concentrations/')
@@ -147,34 +148,11 @@ def update_graph(int_plate_number, str_qc_label):
         )
 
     fig.update_layout(
+        xaxis=dict_x_axis_parameters_categorical,
+        yaxis=dict_y_axis_parameters,
+        font=dict_font_parameters,
         xaxis_title="Analyte",
-        xaxis=dict(
-            showgrid=False,
-            zeroline=False,
-            showline=True,
-            gridcolor='darkgrey',
-            linecolor='black',
-            linewidth=2,
-            ticks='outside',
-            tickfont=dict(family='Arial', size=14, color='black'),
-        ),
         yaxis_title="Concentration (pg/ml)",
-        yaxis=dict(
-            showgrid=True,
-            zeroline=True,
-            showline=True,
-            gridcolor='darkgrey',
-            linecolor='black',
-            linewidth=2,
-            ticks='outside',
-            tickfont=dict(family='Arial', size=14, color='black'),
-        ),
-        font=dict(
-            family="Arial",
-            size=16,
-            color="black"
-        ),
-
     )
 
     return fig

@@ -13,6 +13,7 @@ sys.path.append('../python/')
 from dashboard_util import read_data, get_base_base_directory_path
 import plate_util
 import calibration_curves
+from plotly_figure_parameters import dict_y_axis_parameters, dict_font_parameters, dict_x_axis_parameters_continuous
 
 dash.register_page(__name__, path='/calibration_curves/')
 
@@ -183,29 +184,10 @@ def update_graph(plate_number, str_analyte, str_sample_name):
         )
     fig.update_layout(
         xaxis_type="log",
-        xaxis=dict(
-            title="concentration (pg/ml)",
-            tickmode='array',
-            showgrid=True,
-            zeroline=True,
-            showline=True,
-            gridcolor='darkgrey',
-            zerolinecolor='darkgrey',
-        ),
-        yaxis=dict(
-            title="fluorescent intensity",
-            showgrid=True,
-            zeroline=True,
-            showline=True,
-            gridcolor='darkgrey',
-            zerolinecolor='darkgrey',
-            linecolor='black',
-            linewidth=2,
-        ),
-        font=dict(
-            family="Arial",
-            size=16,
-            color="black"
-        )
+        xaxis_title="concentration (pg/ml)",
+        yaxis_title="fluorescent intensity",
+        xaxis=dict_x_axis_parameters_continuous,
+        yaxis=dict_y_axis_parameters,
+        font=dict_font_parameters,
     )
     return fig
