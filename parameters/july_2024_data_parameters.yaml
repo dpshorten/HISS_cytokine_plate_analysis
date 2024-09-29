@@ -38,7 +38,7 @@ calibration curve maxfev: 1.0e+6
 calibration curve num points for inverse estimation: 1.0e+5
 
 perform LOO check on calibration points: True
-LOO check threshold: 0.8
+LOO check threshold: 0.5
 
 column name prefix for estimated concentrations: "estimated concentration "
 

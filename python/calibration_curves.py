@@ -146,17 +146,17 @@ def one_iteration_of_greedy_LOO(
             np_calibration_curve_points,
             *np_fitted_parameters
         )
-        estimated_LOO_concentration = np.interp(
-            np_measured_fluorescent_intensity[i],
-            np_fitted_fluorescent_intensities,
+        estimated_LOO_fluorescent_intensity = np.interp(
+            np_calibration_concentrations[i],
             np_calibration_curve_points,
+            np_fitted_fluorescent_intensities,
         )
 
         float_LOO_statistic = float(
             np.abs(
-                estimated_LOO_concentration - np_calibration_concentrations[i]
+                estimated_LOO_fluorescent_intensity - np_measured_fluorescent_intensity[i]
             )
-            / np_calibration_concentrations[i]
+            / np_measured_fluorescent_intensity[i]
         )
         if (
                 (float_LOO_statistic > highest_LOO_statistic) and
