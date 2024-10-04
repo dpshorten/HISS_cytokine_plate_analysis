@@ -1,9 +1,11 @@
+import sys
 import dash
 import dash_auth
 from dash import Dash, html, dcc
 import yaml
 
-from dashboard_util import read_credentials
+sys.path.append('../python/')
+from dashboard_notebook_util import read_credentials
 
 dict_parameters = yaml.safe_load(open("../parameters/july_2024_data_parameters.yaml", "r"))
 dict_credentials = read_credentials(dict_parameters)

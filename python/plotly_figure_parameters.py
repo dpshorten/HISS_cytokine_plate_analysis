@@ -1,3 +1,5 @@
+#TODO - refactor so that all dashboard code imports the version of this function in the 'python' directory
+
 dict_x_axis_parameters_categorical=dict(
     showgrid=False,
     zeroline=False,

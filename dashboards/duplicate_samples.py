@@ -10,14 +10,14 @@ import pandas as pd
 pd.options.mode.chained_assignment = None
 
 sys.path.append('../python/')
-from dashboard_util import read_data, get_base_base_directory_path
+from dashboard_notebook_util import read_estimated_concentrations, get_base_base_directory_path
 from plotly_figure_parameters import dict_y_axis_parameters, dict_font_parameters, dict_x_axis_parameters_categorical
 
 
 dash.register_page(__name__, path='/duplicate_samples/')
 
 dict_parameters = yaml.safe_load(open("../parameters/july_2024_data_parameters.yaml", "r"))
-pd_df_estimated_concentrations = read_data(dict_parameters)
+pd_df_estimated_concentrations = read_estimated_concentrations(dict_parameters)
 
 pd_df_plate_data = pd.read_csv(
     open(

@@ -22,7 +22,7 @@ def read_credentials(dict_parameters):
 
     return dict_credentials
 
-def read_data(dict_parameters):
+def read_estimated_concentrations(dict_parameters):
 
     pd_df_estimated_concentrations = pd.read_csv(
         open(
@@ -30,6 +30,21 @@ def read_data(dict_parameters):
                 get_base_base_directory_path(dict_parameters),
                 dict_parameters["output directory"],
                 dict_parameters["estimated concentrations file name"]
+            ),
+            "rb"
+        )
+    )
+
+    return pd_df_estimated_concentrations
+
+def read_plate_data_with_locations(dict_parameters):
+
+    pd_df_estimated_concentrations = pd.read_csv(
+        open(
+            os.path.join(
+                get_base_base_directory_path(dict_parameters),
+                dict_parameters["output directory"],
+                dict_parameters["plate data with locations file name"]
             ),
             "rb"
         )

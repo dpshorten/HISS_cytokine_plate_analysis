@@ -9,14 +9,14 @@ pd.options.mode.chained_assignment = None
 
 sys.path.append('../python/')
 from analysis_util import separate_concentrations_into_cohorts_and_clean
-from dashboard_util import read_data
+from dashboard_notebook_util import read_estimated_concentrations
 from plotly_figure_parameters import dict_y_axis_parameters, dict_font_parameters, dict_x_axis_parameters_continuous
 
 
 dash.register_page(__name__, path='/individual_patients/')
 
 dict_parameters = yaml.safe_load(open("../parameters/july_2024_data_parameters.yaml", "r"))
-pd_df_estimated_concentrations = read_data(dict_parameters)
+pd_df_estimated_concentrations = read_estimated_concentrations(dict_parameters)
 dict_pd_df_cohort_tables = separate_concentrations_into_cohorts_and_clean(
     dict_parameters,
     pd_df_estimated_concentrations
