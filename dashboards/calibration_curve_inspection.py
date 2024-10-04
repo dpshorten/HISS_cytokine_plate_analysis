@@ -10,7 +10,11 @@ import pandas as pd
 pd.options.mode.chained_assignment = None
 
 sys.path.append('../python/')
-from dashboard_notebook_util import read_estimated_concentrations, get_base_base_directory_path
+from dashboard_notebook_util import (
+    read_estimated_concentrations,
+    read_plate_data_with_calibration_concentrations,
+    get_base_base_directory_path
+)
 import plate_util
 import calibration_curves
 from plotly_figure_parameters import dict_y_axis_parameters, dict_font_parameters, dict_x_axis_parameters_continuous
@@ -25,17 +29,8 @@ dash.register_page(__name__, path='/calibration_curves/')
 dict_parameters = yaml.safe_load(open("../parameters/july_2024_data_parameters.yaml", "r"))
 pd_df_estimated_concentrations = read_estimated_concentrations(dict_parameters)
 
-pd_df_plate_data_with_calibration_concentrations = pd.read_csv(
-        open(
-            os.path.join(
-                get_base_base_directory_path(dict_parameters),
-                dict_parameters["output directory"],
-                dict_parameters["plate data with locations and calibration concentrations file name"]
-            ),
-            "rb"
-        ),
-    index_col = 0,
-)
+pd_df_plate_data_with_calibration_concentrations = read_plate_data_with_calibration_concentrations(dict_parameters)
+
 pd_df_calibration_concentrations = plate_util.read_and_clean_calibration_concentrations(
     dict_parameters,
     get_base_base_directory_path(dict_parameters)

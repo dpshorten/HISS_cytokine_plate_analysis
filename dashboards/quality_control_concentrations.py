@@ -9,7 +9,11 @@ import pandas as pd
 pd.options.mode.chained_assignment = None
 
 sys.path.append('../python/')
-from dashboard_notebook_util import read_estimated_concentrations, get_base_base_directory_path
+from dashboard_notebook_util import (
+    read_estimated_concentrations,
+    get_base_base_directory_path,
+    read_quality_control_concentrations
+)
 from plotly_figure_parameters import dict_y_axis_parameters, dict_font_parameters, dict_x_axis_parameters_categorical
 
 
@@ -20,16 +24,7 @@ pd_df_estimated_concentrations = read_estimated_concentrations(dict_parameters)
 
 LIST_ANALYTES_TO_CHECK = list(set(dict_parameters["list of analytes"]) - set(["IFN-gamma", "IP-10", "IL-17"]))
 
-pd_df_quality_control_concentrations = pd.read_csv(
-    open(
-        os.path.join(
-            get_base_base_directory_path(dict_parameters),
-            dict_parameters["data directory"],
-            dict_parameters["quality control concentrations file name"]
-        ),
-        "rb"
-    )
-)
+pd_df_quality_control_concentrations = read_quality_control_concentrations(dict_parameters)
 
 pd_df_estimated_qc_concentrations = (
     pd_df_estimated_concentrations[

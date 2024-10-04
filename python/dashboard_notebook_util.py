@@ -51,3 +51,33 @@ def read_plate_data_with_locations(dict_parameters):
     )
 
     return pd_df_estimated_concentrations
+
+def read_plate_data_with_calibration_concentrations(dict_parameters):
+
+    pd_df_estimated_concentrations = pd.read_csv(
+        open(
+            os.path.join(
+                get_base_base_directory_path(dict_parameters),
+                dict_parameters["output directory"],
+                dict_parameters["plate data with locations and calibration concentrations file name"],
+            ),
+            "rb"
+        )
+    )
+
+    return pd_df_estimated_concentrations
+
+def read_quality_control_concentrations(dict_parameters):
+
+    pd_df_quality_control_concentrations = pd.read_csv(
+        open(
+            os.path.join(
+                get_base_base_directory_path(dict_parameters),
+                dict_parameters["data directory"],
+                dict_parameters["quality control concentrations file name"]
+            ),
+            "rb"
+        )
+    )
+
+    return pd_df_quality_control_concentrations
