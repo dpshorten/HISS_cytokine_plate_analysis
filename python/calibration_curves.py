@@ -330,8 +330,25 @@ class ConcentrationEstimator:
             self.dict_np_calibration_curve_concentrations[plate_number]
         )
 
+        index_of_nearest_fluorescent_intensity = np.searchsorted(
+            self.dict_np_calibration_curve_fluorescent_intensities[plate_number],
+            measured_fluorescent_intensity
+        )
+        if (
+                index_of_nearest_fluorescent_intensity >=
+                len(self.dict_np_calibration_curve_fluorescent_intensities[plate_number]) - 1
+        ):
+            index_of_nearest_fluorescent_intensity = len(self.dict_np_calibration_curve_fluorescent_intensities[plate_number]) - 2
+
+        float_gradient = (
+            (self.dict_np_calibration_curve_fluorescent_intensities[plate_number][index_of_nearest_fluorescent_intensity + 1] -
+            self.dict_np_calibration_curve_fluorescent_intensities[plate_number][index_of_nearest_fluorescent_intensity])/
+            (self.dict_np_calibration_curve_concentrations[plate_number][index_of_nearest_fluorescent_intensity + 1] -
+             self.dict_np_calibration_curve_concentrations[plate_number][index_of_nearest_fluorescent_intensity])
+        )
+
         # TODO: Maybe do rounding further down the pipeline
-        return np.around(estimated_concentration, 3)
+        return pd.Series([np.around(estimated_concentration, 3), float_gradient])
 
 def estimate_concentrations(
         dict_parameters,
@@ -357,7 +374,10 @@ def estimate_concentrations(
             str_analyte
         )
 
-        pd_df_unknowns[dict_parameters["column name prefix for estimated concentrations"] + str_analyte] = (
+        pd_df_unknowns[[
+            dict_parameters["column name prefix for estimated concentrations"] + str_analyte,
+            dict_parameters["column name prefix for calibration curve gradient"] + str_analyte,
+        ]] = (
             pd_df_unknowns.apply(
                 lambda pd_series_row: concentration_estimator.estimate_concentration(
                     pd_series_row, dict_parameters

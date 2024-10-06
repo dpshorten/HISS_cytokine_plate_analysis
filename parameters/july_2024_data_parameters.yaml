@@ -41,6 +41,7 @@ perform LOO check on calibration points: True
 LOO check threshold: 0.5
 
 column name prefix for estimated concentrations: "estimated concentration "
+column name prefix for calibration curve gradient: "calibration curve gradient "
 
 # Plate 2 and 3 are in the same file, so this structure specifies how this is recorded.
 # See the Readme for further details.
