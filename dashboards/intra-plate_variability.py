@@ -49,6 +49,21 @@ layout = html.Div([
     html.H1("Plots of statistics comparing duplicate samples"),
 
     html.Div([
+        html.P(""
+               "Plots capturing the variability of duplicate samples within a plate. For each plate, the %CV or relative "
+                "absolute difference of each sample provided in duplicate (or more repetitions) is calculated and plotted. "
+               "This CV is calculated on both the concentration and the fluorescent intensity and the quantity can be selected "
+               "using the dropdown menu. "
+               "The plot can be displayed as a box plot or a strip plot. When plotting strips of concentrations, the colour "
+                "of the strip can be selected to represent the maximum gradient or the maximum calibration interval. "
+               "The maximum gradient is calculated as the maximum of the gradients of the calibration curves of the replicates, "
+               "at the points on the curves used to estimate the concentration of each replicate. "
+               "The calibration interval refers to which calibration standard solutions the sample fell between "
+               "(again, the maximum is take across the replicates)."
+               ""),
+    ], style={'width': '50%'}),
+
+    html.Div([
         html.Label("Plot type:"),
         dcc.Dropdown(
             id='plot-type-dropdown',

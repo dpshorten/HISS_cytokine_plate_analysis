@@ -43,7 +43,10 @@ layout = html.Div([
     html.H1("Scatter plot of CV vs gradient or calibration interval"),
 
     html.Div([
-        html.P("foo"),
+        html.P("Scatters of the %CV of each analyte vs the maximum gradient or the maximum calibration interval ("
+               "across all plates). "
+               "Refer to the documentation in the intra-plate variability page for more context."
+               )
     ], style={'width': '50%'}),
 
     html.Div([
