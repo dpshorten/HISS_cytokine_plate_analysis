@@ -121,7 +121,7 @@ def calculate_paired_intra_plate_cv(dict_parameters, pd_df_calibration_concentra
     estimate_1, estimate_2 = pd_group[f"{str_concentration_column_prefix}{str_analyte}"].values
     mean = (estimate_1 + estimate_2) / 2
     std_dev = np.sqrt((estimate_1 - mean)**2 + (estimate_2 - mean)**2)
-    return std_dev / mean
+    return (std_dev / mean) * 100
 
 def calculate_paired_intra_plate_rel_abs_diff(dict_parameters, pd_df_calibration_concentrations, str_analyte, pd_group):
     if len(pd_group) != 2:
