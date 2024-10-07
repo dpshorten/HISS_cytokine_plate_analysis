@@ -36,18 +36,6 @@ pd_df_data = get_table_with_all_duplicate_qc_checks(
     pd_df_calibration_concentrations
 )
 
-pd_df_plate_data = pd.read_csv(
-    open(
-        os.path.join(
-            get_base_base_directory_path(dict_parameters),
-            dict_parameters["output directory"],
-            dict_parameters["plate data with locations file name"]
-        ),
-        "rb"
-    ),
-    index_col=0,
-)
-
 layout = html.Div([
     html.H1("Plots of statistics comparing duplicate samples"),
 
