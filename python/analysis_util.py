@@ -114,24 +114,47 @@ def separate_concentrations_into_cohorts_and_clean(dict_parameters, pd_df_estima
 
     return dict_pd_df_cohort_tables
 
-def calculate_paired_intra_plate_cv(dict_parameters, pd_df_calibration_concentrations, str_analyte, pd_group):
+def get_column_name_for_qc_checks(str_column_name_prefix_suffix, str_analyte):
+    if "estimated" in str_column_name_prefix_suffix:
+        return f"{str_column_name_prefix_suffix}{str_analyte}"
+    elif "Median" in str_column_name_prefix_suffix:
+        return f"{str_analyte} {str_column_name_prefix_suffix}"
+    else:
+        print(f"Error: {str_column_name_prefix_suffix}")
+def calculate_paired_intra_plate_cv(
+        dict_parameters,
+        pd_df_calibration_concentrations,
+        str_analyte,
+        str_column_name_prefix_suffix,
+        pd_group
+):
     if len(pd_group) != 2:
         return np.nan
-    str_concentration_column_prefix = dict_parameters["column name prefix for estimated concentrations"]
-    estimate_1, estimate_2 = pd_group[f"{str_concentration_column_prefix}{str_analyte}"].values
+    estimate_1, estimate_2 = pd_group[get_column_name_for_qc_checks(str_column_name_prefix_suffix, str_analyte)].values
     mean = (estimate_1 + estimate_2) / 2
     std_dev = np.sqrt((estimate_1 - mean)**2 + (estimate_2 - mean)**2)
     return (std_dev / mean) * 100
 
-def calculate_paired_intra_plate_rel_abs_diff(dict_parameters, pd_df_calibration_concentrations, str_analyte, pd_group):
+def calculate_paired_intra_plate_rel_abs_diff(
+        dict_parameters,
+        pd_df_calibration_concentrations,
+        str_analyte,
+        str_column_name_prefix_suffix,
+        pd_group
+):
     if len(pd_group) != 2:
         return np.nan
-    str_concentration_column_prefix = dict_parameters["column name prefix for estimated concentrations"]
-    estimate_1, estimate_2 = pd_group[f"{str_concentration_column_prefix}{str_analyte}"].values
+    estimate_1, estimate_2 = pd_group[get_column_name_for_qc_checks(str_column_name_prefix_suffix, str_analyte)].values
     mean = (estimate_1 + estimate_2) / 2
     return np.abs(estimate_1 - estimate_2) / mean
 
-def calculate_max_gradient(dict_parameters, pd_df_calibration_concentrations, str_analyte, pd_group):
+def calculate_max_gradient(
+        dict_parameters,
+        pd_df_calibration_concentrations,
+        str_analyte,
+        str_column_name_prefix_suffix,
+        pd_group
+):
     str_gradient_column_prefix = dict_parameters["column name prefix for calibration curve gradient"]
     if len(pd_group) < 2:
         return pd_group[f"{str_gradient_column_prefix}{str_analyte}"].values[0]
@@ -139,13 +162,18 @@ def calculate_max_gradient(dict_parameters, pd_df_calibration_concentrations, st
         return np.max(pd_group[f"{str_gradient_column_prefix}{str_analyte}"].values)
 
 
-def calculate_max_calibration_interval(dict_parameters, pd_df_calibration_concentrations, str_analyte, pd_group):
+def calculate_max_calibration_interval(
+        dict_parameters,
+        pd_df_calibration_concentrations,
+        str_analyte,
+        str_column_name_prefix_suffix,
+        pd_group
+):
     list_calibration_intervals = []
-    str_concentration_column_prefix = dict_parameters["column name prefix for estimated concentrations"]
     for i in range(len(pd_group)):
         found_group = False
         if (
-                pd_group[f"{str_concentration_column_prefix}{str_analyte}"].values[i] <=
+                pd_group[get_column_name_for_qc_checks(str_column_name_prefix_suffix, str_analyte)].values[i] <=
                 pd_df_calibration_concentrations[f"{str_analyte} Expected"].iloc[0]
         ):
             list_calibration_intervals.append(0)
@@ -153,11 +181,11 @@ def calculate_max_calibration_interval(dict_parameters, pd_df_calibration_concen
             for j in range(len(pd_df_calibration_concentrations) - 1):
                 if (
                         (
-                                pd_group[f"{str_concentration_column_prefix}{str_analyte}"].values[i] >
+                                pd_group[get_column_name_for_qc_checks(str_column_name_prefix_suffix, str_analyte)].values[i] >
                                 pd_df_calibration_concentrations[f"{str_analyte} Expected"].iloc[j]
                         ) and
                         (
-                                pd_group[f"{str_concentration_column_prefix}{str_analyte}"].values[i] <=
+                                pd_group[get_column_name_for_qc_checks(str_column_name_prefix_suffix, str_analyte)].values[i] <=
                                 pd_df_calibration_concentrations[f"{str_analyte} Expected"].iloc[j + 1]
                         )
                 ):
@@ -175,6 +203,7 @@ def get_table_of_duplicate_qc_checks(
         pd_df_estimated_concentrations,
         pd_df_calibration_concentrations,
         function_check,
+        str_column_name_prefix_suffix,
         str_check_name
 ):
     list_pd_df_estimated_concentrations_checked_one_analyte = []
@@ -183,7 +212,13 @@ def get_table_of_duplicate_qc_checks(
             pd_df_estimated_concentrations
             .groupby(["sample name annotations", "plate number"])
             .apply(
-                lambda x: function_check(dict_parameters, pd_df_calibration_concentrations, str_analyte, x),
+                lambda x: function_check(
+                    dict_parameters,
+                    pd_df_calibration_concentrations,
+                    str_analyte,
+                    str_column_name_prefix_suffix,
+                    x
+                ),
                 include_groups=False
             )
             .reset_index()
@@ -209,13 +244,15 @@ def get_table_of_duplicate_qc_checks(
 def get_table_with_all_duplicate_qc_checks(
         dict_parameters,
         pd_df_estimated_concentrations,
-        pd_df_calibration_concentrations
+        pd_df_calibration_concentrations,
+        str_column_name_prefix_suffix,
 ):
     pd_df_CV = get_table_of_duplicate_qc_checks(
         dict_parameters,
         pd_df_estimated_concentrations,
         pd_df_calibration_concentrations,
         calculate_paired_intra_plate_cv,
+        str_column_name_prefix_suffix,
         "CV"
     )
     pd_df_rel_abs_diff = get_table_of_duplicate_qc_checks(
@@ -223,6 +260,7 @@ def get_table_with_all_duplicate_qc_checks(
         pd_df_estimated_concentrations,
         pd_df_calibration_concentrations,
         calculate_paired_intra_plate_rel_abs_diff,
+        str_column_name_prefix_suffix,
         "rel. abs. diff."
     )
     pd_df_gradients = get_table_of_duplicate_qc_checks(
@@ -230,6 +268,7 @@ def get_table_with_all_duplicate_qc_checks(
         pd_df_estimated_concentrations,
         pd_df_calibration_concentrations,
         calculate_max_gradient,
+        str_column_name_prefix_suffix,
         "max gradient"
     )
     pd_df_calibration_intervals = get_table_of_duplicate_qc_checks(
@@ -237,6 +276,7 @@ def get_table_with_all_duplicate_qc_checks(
         pd_df_estimated_concentrations,
         pd_df_calibration_concentrations,
         calculate_max_calibration_interval,
+        str_column_name_prefix_suffix,
         "max cal interval"
     )
     pd_df_data = pd_df_CV.merge(pd_df_rel_abs_diff, on=["sample name annotations", "plate number"], how="outer")

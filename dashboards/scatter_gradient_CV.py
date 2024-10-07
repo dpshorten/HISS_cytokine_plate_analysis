@@ -29,15 +29,22 @@ pd_df_calibration_concentrations = plate_util.read_and_clean_calibration_concent
     dict_parameters,
     str_base_directory_path=get_base_base_directory_path(dict_parameters)
 )
+
 pd_df_data = get_table_with_all_duplicate_qc_checks(
     dict_parameters,
     pd_df_estimated_concentrations,
-    pd_df_calibration_concentrations
+    pd_df_calibration_concentrations,
+    dict_parameters["column name prefix for estimated concentrations"],
 )
 pd_df_data_cleaned = pd_df_data.dropna()
 
 layout = html.Div([
+
     html.H1("Scatter plot of CV vs gradient or calibration interval"),
+
+    html.Div([
+        html.P("foo"),
+    ], style={'width': '50%'}),
 
     html.Div([
         html.Label("Analyte:"),

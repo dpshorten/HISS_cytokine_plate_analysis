@@ -30,11 +30,20 @@ pd_df_calibration_concentrations = plate_util.read_and_clean_calibration_concent
     dict_parameters,
     str_base_directory_path=get_base_base_directory_path(dict_parameters)
 )
-pd_df_data = get_table_with_all_duplicate_qc_checks(
+
+pd_df_concentrations_with_qc = get_table_with_all_duplicate_qc_checks(
     dict_parameters,
     pd_df_estimated_concentrations,
-    pd_df_calibration_concentrations
+    pd_df_calibration_concentrations,
+    dict_parameters["column name prefix for estimated concentrations"],
 )
+pd_df_intensities_with_qc = get_table_with_all_duplicate_qc_checks(
+    dict_parameters,
+    pd_df_estimated_concentrations,
+    pd_df_calibration_concentrations,
+    "Median",
+)
+
 
 layout = html.Div([
     html.H1("Plots of statistics comparing duplicate samples"),
@@ -49,7 +58,7 @@ layout = html.Div([
             ],
             value='box',
         ),
-    ], style={'width': '20%', 'display': 'inline-block'}),
+    ], style={'width': '15%', 'display': 'inline-block'}),
 
     html.Div([
         html.Label("Analyte:"),
@@ -58,7 +67,7 @@ layout = html.Div([
             options=[{'label': col, 'value': col} for col in dict_parameters["list of analytes"]],
             value=dict_parameters["list of analytes"][0]
         ),
-    ], style={'width': '20%', 'display': 'inline-block'}),
+    ], style={'width': '15%', 'display': 'inline-block'}),
 
     html.Div([
         html.Label("Statistic:"),
@@ -70,10 +79,10 @@ layout = html.Div([
             ],
             value='CV',
         ),
-    ], style={'width': '20%', 'display': 'inline-block'}),
+    ], style={'width': '15%', 'display': 'inline-block'}),
 
     html.Div([
-        html.Label("Strip colour:"),
+        html.Label("Concentration Strip colour:"),
         dcc.Dropdown(
             id='strip-colour-dropdown',
             options=[
@@ -82,7 +91,19 @@ layout = html.Div([
             ],
             value='max gradient',
         ),
-    ], style={'width': '20%', 'display': 'inline-block'}),
+    ], style={'width': '15%', 'display': 'inline-block'}),
+
+    html.Div([
+        html.Label("Quantity:"),
+        dcc.Dropdown(
+            id='quantity-dropdown',
+            options=[
+                {'label': 'concentration', 'value': 'concentration'},
+                {'label': 'fluorescent intensity', 'value': 'fluorescent intensity'},
+            ],
+            value='concentration',
+        ),
+    ], style={'width': '15%', 'display': 'inline-block'}),
 
     html.Div([
         dcc.Graph(id='scatter-plot-duplicates')
@@ -96,9 +117,25 @@ layout = html.Div([
     Input('plot-type-dropdown', 'value'),
     Input('statistic-dropdown', 'value'),
     Input('strip-colour-dropdown', 'value'),
+    Input('quantity-dropdown', 'value'),
 )
-def update_graph(str_analyte, str_plot_type, str_statistic, str_strip_colour):
+def update_graph(str_analyte, str_plot_type, str_statistic, str_strip_colour, str_quantity):
     str_column_name = f"{str_statistic} {str_analyte}"
+
+    if str_quantity == "concentration":
+        pd_df_data = pd_df_concentrations_with_qc
+        marker_dict = dict(
+            size=8,
+            color=pd_df_concentrations_with_qc[str_strip_colour + " " + str_analyte],
+            colorscale='Viridis',
+            showscale=True,
+            colorbar=dict(title="\n".join(str_strip_colour.split(" ")), titlefont=dict(size=14)),
+        )
+    elif str_quantity == "fluorescent intensity":
+        pd_df_data = pd_df_intensities_with_qc
+        marker_dict = dict(
+            size=8,
+        )
 
     if str_plot_type == "box":
         fig = px.box(
@@ -115,14 +152,7 @@ def update_graph(str_analyte, str_plot_type, str_statistic, str_strip_colour):
             x=pd_df_data["plate number"] + np.random.uniform(-0.1, 0.1, len(pd_df_data)),
             y=pd_df_data[str_column_name],
             mode='markers',
-            marker=dict(
-                size=8,
-                color=pd_df_data[str_strip_colour + " " + str_analyte],
-                colorscale='Viridis',
-                showscale=True,
-                colorbar=dict(title="\n".join(str_strip_colour.split(" ")), titlefont=dict(size=14)),
-
-            ),
+            marker=marker_dict,
             hovertext=pd_df_data["sample name annotations"],
         ))
         fig.update_traces(marker=dict(opacity=0.75))
