@@ -50,6 +50,11 @@ layout = html.Div([
     html.H1("Calibration Curve Inspection Plots"),
 
     html.Div([
+        html.P("Note that the calibration curves are fit to the raw concentrations of the standards (not log concentrations)."
+               "Viewing the curves on the log scale will, therefore, lead to inaccurate conclusions about their gradient.")
+    ], style={'width': '50%'}),
+
+    html.Div([
         html.Label("Plate:"),
         dcc.Dropdown(
             id='plate-number-dropdown-calibration',
@@ -77,6 +82,16 @@ layout = html.Div([
         ),
     ], style={'width': '20%', 'display': 'inline-block'}),
 
+    html.Div([
+        html.Label("X-axis scale:"),
+        dcc.Dropdown(
+            id='x-axis-scale-dropdown',
+            options=[{'label': 'linear', 'value': 'linear'}, {'label': 'log', 'value': 'log'}],
+            value='linear',
+        ),
+    ], style={'width': '20%', 'display': 'inline-block'}),
+
+
     dcc.Graph(id='scatter-plot-calibration')
 ], style={'backgroundColor': 'white', 'padding': '20px'})
 
@@ -103,8 +118,9 @@ def set_plate_number_options(selected_plate_number):
     Input('plate-number-dropdown-calibration', 'value'),
     Input('analyte-dropdown-calibration', 'value'),
     Input('sample-dropdown-calibration', 'value'),
+    Input('x-axis-scale-dropdown', 'value'),
 )
-def update_graph(plate_number, str_analyte, str_sample_name):
+def update_graph(plate_number, str_analyte, str_sample_name, str_x_axis_scale):
     dict_fit_results = (
         dict_fitted_calibration_curves["calibration curves by plate"][plate_number][str_analyte]
     )
@@ -218,7 +234,7 @@ def update_graph(plate_number, str_analyte, str_sample_name):
             )
         )
     fig.update_layout(
-        xaxis_type="log",
+        xaxis_type=str_x_axis_scale,
         xaxis_title="concentration (pg/ml)",
         yaxis_title="fluorescent intensity",
         xaxis=dict_x_axis_parameters_continuous,

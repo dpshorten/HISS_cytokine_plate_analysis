@@ -39,15 +39,7 @@ pd_df_data = get_table_with_all_duplicate_qc_checks(
 pd_df_data_cleaned = pd_df_data.dropna()
 
 layout = html.Div([
-
     html.H1("Scatter plot of CV vs gradient or calibration interval"),
-
-    html.Div([
-        html.P("Scatters of the %CV of each analyte vs the maximum gradient or the maximum calibration interval ("
-               "across all plates). "
-               "Refer to the documentation in the intra-plate variability page for more context."
-               )
-    ], style={'width': '50%'}),
 
     html.Div([
         html.Label("Analyte:"),
@@ -71,6 +63,18 @@ layout = html.Div([
     ], style={'width': '20%', 'display': 'inline-block'}),
 
     html.Div([
+        html.Label("Y axis:"),
+        dcc.Dropdown(
+            id='y-axis-dropdown',
+            options=[
+                {'label': '%CV', 'value': '%CV'},
+                {'label': 'max log concentration', 'value': 'max log concentration'},
+            ],
+            value='%CV',
+        ),
+    ], style={'width': '20%', 'display': 'inline-block'}),
+
+    html.Div([
         dcc.Graph(id='scatter-plot-gradient-cv')
     ], style={'width': '80%'}),
 ], style={'backgroundColor': 'white', 'padding': '20px'})
@@ -80,32 +84,45 @@ layout = html.Div([
     Output('scatter-plot-gradient-cv', 'figure'),
     Input('analyte-dropdown', 'value'),
     Input('x-axis-dropdown', 'value'),
+    Input('y-axis-dropdown', 'value'),
 )
-def update_graph(str_analyte, str_x_axis):
+def update_graph(str_analyte, str_x_axis, str_y_axis):
     fig = go.Figure()
+
+    if str_y_axis == "%CV":
+        str_y_column = f"CV {str_analyte}"
+    elif str_y_axis == "max log concentration":
+        str_y_column = f"log max estimated concentration {str_analyte}"
 
     if str_x_axis == "max gradient":
         np_noise = np.zeros(len(pd_df_data))
     elif str_x_axis == "max cal interval":
         np_noise = np.random.uniform(-0.1, 0.1, len(pd_df_data))
+
+    pd_series_x_data = pd_df_data[f"{str_x_axis} {str_analyte}"] + np_noise
+    pd_series_y_data = pd_df_data[str_y_column]
+
+    pd_series_x_data_cleaned = pd_df_data_cleaned[f"{str_x_axis} {str_analyte}"]
+    pd_series_y_data_cleaned = pd_df_data_cleaned[str_y_column]
+
     fig.add_trace(go.Scatter(
-        x=pd_df_data[f"{str_x_axis} {str_analyte}"] + np_noise,
-        y=pd_df_data[f"CV {str_analyte}"],
+        x=pd_series_x_data,
+        y=pd_series_y_data,
         mode='markers',
         hovertext=pd_df_data["sample name annotations"],
     ))
 
     slope, intercept, r_value, p_value, std_err = stats.linregress(
-        pd_df_data_cleaned[f"{str_x_axis} {str_analyte}"],
-        pd_df_data_cleaned[f"CV {str_analyte}"]
+        pd_series_x_data_cleaned,
+        pd_series_y_data_cleaned
     )
     np_line_x = np.array([
-        pd_df_data_cleaned[f"{str_x_axis} {str_analyte}"].min(),
-        pd_df_data_cleaned[f"{str_x_axis} {str_analyte}"].max()
+        pd_series_x_data_cleaned.min(),
+        pd_series_x_data_cleaned.max()
     ])
     np_line_y = slope * np_line_x + intercept
 
-    fig.add_trace(go.Scatter(x=np_line_x, y=np_line_y, mode='lines'))
+    fig.add_trace(go.Scatter(x=np_line_x, y=np_line_y, mode='lines', name='Trendline'))
 
     textbox = f'Gradient: {slope:.2f}<br>p-value: {p_value:.4f}'
     fig.add_annotation(
@@ -124,10 +141,9 @@ def update_graph(str_analyte, str_x_axis):
         yaxis=dict_y_axis_parameters,
         font=dict_font_parameters,
         xaxis_title=str_x_axis,
-        yaxis_title="%CV",
+        yaxis_title=str_y_axis,
         plot_bgcolor='white',
         paper_bgcolor='white',
-        showlegend=False,
     )
 
     return fig
