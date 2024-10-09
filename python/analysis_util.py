@@ -1,5 +1,4 @@
-import yaml
-import os
+from functools import reduce
 import pandas as pd
 import numpy as np
 
@@ -135,6 +134,18 @@ def calculate_paired_intra_plate_cv(
     std_dev = np.sqrt((estimate_1 - mean)**2 + (estimate_2 - mean)**2)
     return (std_dev / mean) * 100
 
+def calculate_log_of_max_estimated_concentrations(
+        dict_parameters,
+        pd_df_calibration_concentrations,
+        str_analyte,
+        str_column_name_prefix_suffix,
+        pd_group
+):
+    if len(pd_group) != 2:
+        return np.nan
+    estimate_1, estimate_2 = pd_group[get_column_name_for_qc_checks(str_column_name_prefix_suffix, str_analyte)].values
+    return np.log(np.max([estimate_1, estimate_2]))
+
 def calculate_paired_intra_plate_rel_abs_diff(
         dict_parameters,
         pd_df_calibration_concentrations,
@@ -160,7 +171,6 @@ def calculate_max_gradient(
         return pd_group[f"{str_gradient_column_prefix}{str_analyte}"].values[0]
     else:
         return np.max(pd_group[f"{str_gradient_column_prefix}{str_analyte}"].values)
-
 
 def calculate_max_calibration_interval(
         dict_parameters,
@@ -279,7 +289,23 @@ def get_table_with_all_duplicate_qc_checks(
         str_column_name_prefix_suffix,
         "max cal interval"
     )
-    pd_df_data = pd_df_CV.merge(pd_df_rel_abs_diff, on=["sample name annotations", "plate number"], how="outer")
-    pd_df_data = pd_df_data.merge(pd_df_gradients, on=["sample name annotations", "plate number"], how="outer")
-    pd_df_data = pd_df_data.merge(pd_df_calibration_intervals, on=["sample name annotations", "plate number"],how="outer")
-    return pd_df_data
+    pd_df_log_max_estimated_concentrations = get_table_of_duplicate_qc_checks(
+        dict_parameters,
+        pd_df_estimated_concentrations,
+        pd_df_calibration_concentrations,
+        calculate_log_of_max_estimated_concentrations,
+        str_column_name_prefix_suffix,
+        "log max estimated concentration"
+    )
+    pd_df_merged = reduce(
+        lambda left, right: pd.merge(left, right, on=["sample name annotations", "plate number"], how="outer"),
+        [
+            pd_df_CV,
+            pd_df_rel_abs_diff,
+            pd_df_gradients,
+            pd_df_calibration_intervals,
+            pd_df_log_max_estimated_concentrations
+        ]
+    )
+    return pd_df_merged
+

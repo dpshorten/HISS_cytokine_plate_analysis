@@ -18,6 +18,11 @@ def get_calibration_curve_concenration_points(dict_parameters, float_max_concent
         int(dict_parameters["calibration curve num points for inverse estimation"]),
         base = 10,
     )
+    # return np.linspace(
+    #     0,
+    #     float_max_concentration,
+    #     int(dict_parameters["calibration curve num points for inverse estimation"]),
+    # )
 def get_calibration_curve_function(dict_parameters):
 
     if dict_parameters["calibration curve model"] == "five parameter logistic":
@@ -332,13 +337,9 @@ class ConcentrationEstimator:
 
         index_of_nearest_fluorescent_intensity = np.searchsorted(
             self.dict_np_calibration_curve_fluorescent_intensities[plate_number],
-            measured_fluorescent_intensity
+            measured_fluorescent_intensity,
+            side='right'
         )
-        if (
-                index_of_nearest_fluorescent_intensity >=
-                len(self.dict_np_calibration_curve_fluorescent_intensities[plate_number]) - 1
-        ):
-            index_of_nearest_fluorescent_intensity = len(self.dict_np_calibration_curve_fluorescent_intensities[plate_number]) - 2
 
         float_gradient = (
             (self.dict_np_calibration_curve_fluorescent_intensities[plate_number][index_of_nearest_fluorescent_intensity + 1] -
