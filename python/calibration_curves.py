@@ -12,17 +12,17 @@ def four_parameter_logistic_function(np_x, a, b, c, d):
     return d + ((a - d) / (1.0 + ((np_x + 1) / c) ** b))
 
 def get_calibration_curve_concenration_points(dict_parameters, float_max_concentration):
-    return np.logspace(
-        0,
-        np.log(float_max_concentration) / np.log(10),
-        int(dict_parameters["calibration curve num points for inverse estimation"]),
-        base = 10,
-    )
-    # return np.linspace(
+    # return np.logspace(
     #     0,
-    #     float_max_concentration,
+    #     np.log(float_max_concentration) / np.log(10),
     #     int(dict_parameters["calibration curve num points for inverse estimation"]),
+    #     base = 10,
     # )
+    return np.linspace(
+        0,
+        float_max_concentration,
+        int(dict_parameters["calibration curve num points for inverse estimation"]),
+    )
 def get_calibration_curve_function(dict_parameters):
 
     if dict_parameters["calibration curve model"] == "five parameter logistic":
@@ -339,6 +339,11 @@ class ConcentrationEstimator:
             self.dict_np_calibration_curve_fluorescent_intensities[plate_number],
             measured_fluorescent_intensity,
             side='right'
+        )
+
+        index_of_nearest_fluorescent_intensity = min(
+            index_of_nearest_fluorescent_intensity,
+            len(self.dict_np_calibration_curve_fluorescent_intensities[plate_number]) - 2
         )
 
         float_gradient = (

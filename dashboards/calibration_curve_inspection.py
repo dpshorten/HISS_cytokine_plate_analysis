@@ -155,12 +155,17 @@ def update_graph(plate_number, str_analyte, str_sample_name, str_x_axis_scale):
     pd_df_one_plates_data = pd_df_one_plates_data.fillna({"inclusion": "included"})
 
 
-    np_curve_plot_points = np.logspace(
-        0,
-        np.log(max(pd_df_one_plates_data[str_analyte + " Expected"])) / np.log(10),
-        1000,
-        base=10,
-        endpoint=False,
+    # np_curve_plot_points = np.logspace(
+    #     0,
+    #     np.log(max(pd_df_one_plates_data[str_analyte + " Expected"])) / np.log(10),
+    #     1000,
+    #     base=10,
+    #     endpoint=False,
+    # )
+    np_curve_plot_points = np.linspace(
+            0,
+            max(pd_df_one_plates_data[str_analyte + " Expected"]),
+            1000,
     )
 
     fig = go.Figure()

@@ -62,7 +62,8 @@ plate number to file associations:
     file name: "Plate_05_RunResults_PLATE_04102024_RUN000.csv"
     file plate number: 1
   6:
-    file name: "Plate_06_RunResults_PLATE_04112024_RUN000.csv"
+    #file name: "Plate_06_RunResults_PLATE_04112024_RUN000.csv"
+    file name: "Plate_6_rerun_kit2.5_23.10.24_PLATE_10232024_RUN000.csv"
     file plate number: 1
   7:
     file name: "PlateRunResults_Plate 7 180424 HISS.csv"
@@ -105,4 +106,7 @@ plate number to file associations:
     file plate number: 1
   21:
     file name: "plate_21_0017A_0018A_PlateRunResults_PLATE_10042024_RUN000.csv"
+    file plate number: 1
+  22:
+    file name: "plate22_kit2.6_0020A_UofM_31.10.24_PLATE_10312024_RUN000.csv"
     file plate number: 1
