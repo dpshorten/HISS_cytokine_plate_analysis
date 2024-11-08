@@ -96,6 +96,12 @@ def fit_calibration_curve_with_left_out_points(
         list_left_out_indices
 ):
     np_calibration_concentrations_temp = np.delete(np_calibration_concentrations, list_left_out_indices)
+    if "calibration concentration modifier" in dict_parameters["plate number to file associations"][plate_number].keys():
+        np_calibration_concentrations_temp = (
+                np_calibration_concentrations_temp *
+                dict_parameters["plate number to file associations"][plate_number]["calibration concentration modifier"]
+        )
+
     np_measured_fluorescent_intensity_temp = np.delete(np_measured_fluorescent_intensity, list_left_out_indices)
     np_measured_fluorescent_intensity_std_dev_temp = np.delete(np_measured_fluorescent_intensity_std_dev, list_left_out_indices)
 

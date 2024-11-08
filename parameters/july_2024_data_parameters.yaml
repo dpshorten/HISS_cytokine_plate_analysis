@@ -48,7 +48,6 @@ column name prefix for calibration curve gradient: "calibration curve gradient "
 plate number to file associations:
   1:
     file name: "Plate_01_RunResults_PLATE_03282024_RUN000.csv"
-    file plate number: 1
   2:
     file name: "Plate_02_and_Plate_3_RunResults_Multiplate_2024-04-04_13-35-52_1.csv"
     file plate number: 1
@@ -57,56 +56,39 @@ plate number to file associations:
     file plate number: 2
   4:
     file name: "Plate_04_RunResults_Plate_4_9042024.csv"
-    file plate number: 1
   5:
     file name: "Plate_05_RunResults_PLATE_04102024_RUN000.csv"
-    file plate number: 1
   6:
     #file name: "Plate_06_RunResults_PLATE_04112024_RUN000.csv"
     file name: "Plate_6_rerun_kit2.5_23.10.24_PLATE_10232024_RUN000.csv"
-    file plate number: 1
   7:
     file name: "PlateRunResults_Plate 7 180424 HISS.csv"
-    file plate number: 1
   8:
     file name: "Plate_08_RunResults_PLATE_05032024_RUN000.csv"
-    file plate number: 1
   9:
     file name: "Plate_09_RunResults_PLATE_05072024_RUN000.csv"
-    file plate number: 1
   10:
     file name: "Plate_10_RunResults_PLATE_05142024_RUN000.csv"
-    file plate number: 1
   11:
     file name: "Plate_11_RunResults_PLATE_05152024_RUN000.csv"
-    file plate number: 1
   12:
     file name: "Plate_12_RunResults_PLATE_05162024_RUN000.csv"
-    file plate number: 1
   13:
     file name: "Plate_13_RunResults_PLATE_05212024_RUN000.csv"
-    file plate number: 1
   14:
     file name: "Plate_14_RunResults_PLATE_05222024_RUN000.csv"
-    file plate number: 1
   15:
     file name: "Plate_15_RunResults_PLATE_05232024_RUN000.csv"
-    file plate number: 1
   16:
     file name: "Plate_16_RunResults_PLATE_05292024_RUN000.csv"
-    file plate number: 1
   18:
     file name: "PlateRunResults_PLATE_09122024_RUN000_xponent.csv"
-    file plate number: 1
+    calibration concentration modifier: 0.75
   19:
     file name: "PlateRunResults_plate19_0010A_0014A kit2.2_09182024_RUN000.csv"
-    file plate number: 1
   20:
     file name: "PlateRunResults_plate20_0015A_0016A_kit2.3_09262024_RUN000.csv"
-    file plate number: 1
   21:
     file name: "plate_21_0017A_0018A_PlateRunResults_PLATE_10042024_RUN000.csv"
-    file plate number: 1
   22:
     file name: "plate22_kit2.6_0020A_UofM_31.10.24_PLATE_10312024_RUN000.csv"
-    file plate number: 1

@@ -197,10 +197,14 @@ def extract_plate_data_and_locations_from_parsed_files(dict_parameters, dict_par
         pd_df_merged_tables["plate row"] = pd_df_merged_tables["location code"].str[0]
         pd_df_merged_tables["plate column"] = pd_df_merged_tables["location code"].str[1:].astype(int)
 
+        if "file plate number" in dict_parameters["plate number to file associations"][plate_number].keys():
+            file_plate_number = dict_parameters["plate number to file associations"][plate_number]["file plate number"]
+        else:
+            file_plate_number = 1
+
         pd_df_merged_tables = (
             pd_df_merged_tables[
-                pd_df_merged_tables["file plate number"] ==
-                dict_parameters["plate number to file associations"][plate_number]["file plate number"]
+                pd_df_merged_tables["file plate number"] == file_plate_number
             ]
         )
         pd_df_merged_tables = pd_df_merged_tables.drop(columns=["Location", "location code", "file plate number"])
