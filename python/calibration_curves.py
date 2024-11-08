@@ -70,7 +70,6 @@ def fit_calibration_curve(
             # TDDO: add to parameters file
             maxfev=int(dict_parameters["calibration curve maxfev"])
         )
-        # print(np_fitted_parameters)
         dict_results = {
             "model": dict_parameters["calibration curve model"],
             "fitted parameters": np_fitted_parameters.tolist(),
@@ -124,7 +123,6 @@ def one_iteration_of_greedy_LOO(
     index_of_highest_LOO_statistic = -1
     highest_LOO_statistic = 0
     list_left_out_indices = [dict_left_out_indices[key]["left out index"] for key in dict_left_out_indices.keys()]
-    print("left out list", list_left_out_indices)
     for i in range(len(np_calibration_concentrations)):
         if np_calibration_concentrations[i] == 0:
             continue
@@ -207,7 +205,6 @@ def fit_calibration_curve_and_perform_LOO(
                 dict_left_out_indices
             )
 
-            print(highest_LOO_statistic, index_of_highest_LOO_statistic)
             if (highest_LOO_statistic > dict_parameters["LOO check threshold"]):
                 if list_calibration_names[index_of_highest_LOO_statistic] in dict_left_out_indices:
                     if (
@@ -227,7 +224,7 @@ def fit_calibration_curve_and_perform_LOO(
                         "plate row": list_calibration_rows[index_of_highest_LOO_statistic],
                         "plate column": int(list_calibration_columns[index_of_highest_LOO_statistic]),
                     }
-        print(f"plate {plate_number}, analyte {str_analyte}, {dict_left_out_indices}")
+
         list_left_out_indices = [dict_left_out_indices[key]["left out index"] for key in dict_left_out_indices.keys()]
         dict_fit_results = fit_calibration_curve_with_left_out_points(
             dict_parameters,

@@ -132,7 +132,10 @@ def calculate_paired_intra_plate_cv(
     estimate_1, estimate_2 = pd_group[get_column_name_for_qc_checks(str_column_name_prefix_suffix, str_analyte)].values
     mean = (estimate_1 + estimate_2) / 2
     std_dev = np.sqrt((estimate_1 - mean)**2 + (estimate_2 - mean)**2)
-    return (std_dev / mean) * 100
+    if mean == 0:
+        return np.nan
+    else:
+        return (std_dev / mean) * 100
 
 def calculate_log_of_max_estimated_concentrations(
         dict_parameters,
@@ -144,7 +147,10 @@ def calculate_log_of_max_estimated_concentrations(
     if len(pd_group) != 2:
         return np.nan
     estimate_1, estimate_2 = pd_group[get_column_name_for_qc_checks(str_column_name_prefix_suffix, str_analyte)].values
-    return np.log(np.max([estimate_1, estimate_2]))
+    if np.max([estimate_1, estimate_2]) <= 0:
+        return np.nan
+    else:
+        return np.log(np.max([estimate_1, estimate_2]))
 
 def calculate_paired_intra_plate_rel_abs_diff(
         dict_parameters,
@@ -157,7 +163,10 @@ def calculate_paired_intra_plate_rel_abs_diff(
         return np.nan
     estimate_1, estimate_2 = pd_group[get_column_name_for_qc_checks(str_column_name_prefix_suffix, str_analyte)].values
     mean = (estimate_1 + estimate_2) / 2
-    return np.abs(estimate_1 - estimate_2) / mean
+    if mean == 0:
+        return np.nan
+    else:
+        return np.abs(estimate_1 - estimate_2) / mean
 
 def calculate_max_gradient(
         dict_parameters,
