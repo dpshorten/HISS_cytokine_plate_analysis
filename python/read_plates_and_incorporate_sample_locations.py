@@ -1,7 +1,7 @@
 import argparse
 import yaml
 import plate_util
-import pickle
+
 import os
 def main():
 
@@ -22,7 +22,9 @@ def main():
     )
     pd_df_concatenated_plates = plate_util.concatenate_plates_into_single_dataframe(dict_incorporated_plate_data)
 
-    # noinspection PyTypeChecker
+    pd_df_concatenated_plates = plate_util.apply_sample_name_corrections(dict_parameters, pd_df_concatenated_plates)
+
+    #TODO: Centralise file reading and writing code
     pd_df_concatenated_plates.to_csv(
         open(
             os.path.join(
@@ -31,7 +33,7 @@ def main():
                 dict_parameters["plate data with locations file name"]
             ),
             "wb"
-        )
+        ),
     )
 
 if __name__ == "__main__":

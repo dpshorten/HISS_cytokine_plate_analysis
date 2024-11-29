@@ -7,6 +7,8 @@ def get_base_base_directory_path(dict_parameters):
     if os.environ.get('ON_DOCKER') == 'True':
         str_base_directory_path = dict_parameters["docker base directory path"]
     return str_base_directory_path
+
+#TODO: remove the rbs
 def read_credentials(dict_parameters):
 
     pd_df_credentials = pd.read_csv(
@@ -61,7 +63,7 @@ def read_plate_data_with_calibration_concentrations(dict_parameters):
                 dict_parameters["output directory"],
                 dict_parameters["plate data with locations and calibration concentrations file name"],
             ),
-            "rb"
+            "r"
         )
     )
 
@@ -76,7 +78,7 @@ def read_quality_control_concentrations(dict_parameters):
                 dict_parameters["data directory"],
                 dict_parameters["quality control concentrations file name"]
             ),
-            "rb"
+            "r"
         )
     )
 

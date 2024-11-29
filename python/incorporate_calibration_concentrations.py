@@ -34,6 +34,7 @@ def main():
         pd_df_calibration_concentrations
     )
 
+    #TODO: Centralise file reading and writing code
     pd_df_plate_data_with_calibration_concentrations.to_csv(
         open(
             os.path.join(
@@ -42,7 +43,8 @@ def main():
                 dict_parameters["plate data with locations and calibration concentrations file name"]
             ),
             "wb"
-        )
+        ),
+        #index=False
     )
 
 if __name__ == "__main__":

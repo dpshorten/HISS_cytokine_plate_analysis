@@ -404,6 +404,7 @@ def estimate_concentrations(
 
     list_first_columns = [
         "sample name annotations",
+        "old sample name annotations",
         "sample name plate",
         "sample repeat number",
         "plate number",

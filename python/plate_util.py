@@ -3,6 +3,22 @@ import io
 from functools import reduce
 import os
 
+def read_plate_sample_name_corrections(dict_parameters):
+
+        pd_df_sample_name_corrections = pd.read_csv(
+            open(
+                os.path.join(
+                    dict_parameters["base directory path"],
+                    dict_parameters["data directory"],
+                    dict_parameters["plate sample locations relative path"],
+                    dict_parameters["sample name corrections file name"],
+                ),
+                "r",
+            )
+        )
+
+        return pd_df_sample_name_corrections
+
 def split_file_lines_into_blocks(file_object):
     """ Split a file into blocks of lines separated by empty lines """
 
@@ -258,3 +274,45 @@ def concatenate_plates_into_single_dataframe(dict_incorporated_plate_data):
 
     pd_df_concatenated = pd.concat(dict_incorporated_plate_data.values(), ignore_index=True)
     return pd_df_concatenated
+
+def apply_sample_name_corrections(dict_parameters, pd_df_concatenated_plates):
+
+    pd_df_sample_name_corrections = read_plate_sample_name_corrections(dict_parameters)
+
+    pd_df_merged = pd_df_concatenated_plates.merge(
+        pd_df_sample_name_corrections,
+        left_on=["sample name annotations", "plate number", "plate row", "plate column"],
+        right_on=["Old ID", "Plate #", "Row", "Column"],
+        how="left"
+    )
+
+    set_unmerged_ids = set(pd_df_sample_name_corrections['New ID']) - set(pd_df_merged['New ID'])
+
+    if set_unmerged_ids:
+        print("The following sample name corrections did not have a match in the plate data:")
+        print(set_unmerged_ids)
+        raise AssertionError("Some sample name corrections did not match")
+
+    # pd_df_merged[pd_df_merged["New ID"].isna()]["sample name annotations"] = (
+    #     pd_df_merged[pd_df_merged["New ID"].isna()]["New ID"]
+    # )
+
+    pd_df_merged.loc[~pd_df_merged["New ID"].isna(), "sample name annotations"] = (
+        pd_df_merged.loc[~pd_df_merged["New ID"].isna(), "New ID"]
+    )
+
+    pd_df_merged = pd_df_merged.drop(columns=["Plate #", "Row", "Column", "New ID"])
+    pd_df_merged = pd_df_merged.rename(columns={"Old ID": "old sample name annotations"})
+
+    # reorder the columns
+    pd_df_merged = (
+        pd_df_merged[
+            ["plate number", "plate row", "plate column", "sample name annotations", "old sample name annotations"] +
+            [
+                col for col in pd_df_merged if col not in
+                ["plate number", "plate row", "plate column", "sample name annotations", "old sample name"]
+            ]
+        ]
+    )
+
+    return pd_df_merged
