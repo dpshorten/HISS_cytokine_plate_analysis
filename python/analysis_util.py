@@ -3,6 +3,25 @@ import pandas as pd
 import numpy as np
 
 
+def add_concentration_diffs_to_one_cohort_table(dict_parameters, pd_df_cohort_table, int_base_time_code):
+
+    for str_analyte in dict_parameters["list of analytes"]:
+        pd_df_cohort_table[str_analyte + " diff"] = (
+            pd_df_cohort_table.groupby("patient number").apply(
+                lambda x: x["estimated concentration " + str_analyte]
+                          - x[x["time int"] == int_base_time_code]["estimated concentration " + str_analyte].iloc[
+                              0],
+                include_groups=False,
+            )
+        ).reset_index(drop=True)
+def add_concentration_diffs_to_cohort_tables(dict_parameters, dict_pd_df_cohort_tables):
+
+    for str_cohort_name, int_base_time_code in zip(dict_parameters["list of cohort names"], [2, 1]):
+        add_concentration_diffs_to_one_cohort_table(
+            dict_parameters,
+            dict_pd_df_cohort_tables[str_cohort_name],
+            int_base_time_code,
+        )
 def separate_concentrations_into_cohorts_and_clean(dict_parameters, pd_df_estimated_concentrations):
 
     dict_pd_df_cohort_tables = {}
@@ -95,21 +114,7 @@ def separate_concentrations_into_cohorts_and_clean(dict_parameters, pd_df_estima
                 ]
         )
 
-    dict_pd_df_cohort_tables["Adelaide"].groupby("patient number").apply(
-        lambda x: x["estimated concentration " + "IFN-gamma"]
-                              - x[x["time int"] == 1]["estimated concentration " + "IFN-gamma"].iloc[0],
-                    include_groups = False,
-    )
-
-    for str_cohort_name, int_base_time_code in zip(dict_parameters["list of cohort names"], [2, 1]):
-        for str_analyte in dict_parameters["list of analytes"]:
-            dict_pd_df_cohort_tables[str_cohort_name][str_analyte + " diff"] = (
-                dict_pd_df_cohort_tables[str_cohort_name].groupby("patient number").apply(
-                    lambda x: x["estimated concentration " + str_analyte]
-                              - x[x["time int"] == int_base_time_code]["estimated concentration " + str_analyte].iloc[0],
-                    include_groups = False,
-                )
-            ).reset_index(drop = True)
+    add_concentration_diffs_to_cohort_tables(dict_parameters, dict_pd_df_cohort_tables)
 
     return dict_pd_df_cohort_tables
 
