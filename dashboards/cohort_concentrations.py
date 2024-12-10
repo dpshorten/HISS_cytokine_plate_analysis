@@ -9,7 +9,7 @@ pd.options.mode.chained_assignment = None
 
 sys.path.append('../python/')
 from analysis_util import separate_concentrations_into_cohorts_and_clean, add_concentration_diffs_to_one_cohort_table
-from dashboard_notebook_util import read_estimated_concentrations
+from dashboard_notebook_util import read_estimated_concentrations, read_clean_adelaide_randomisation_schedule
 from plotly_figure_parameters import dict_y_axis_parameters, dict_font_parameters, dict_x_axis_parameters_categorical
 
 dash.register_page(__name__, path='/cohort_concentrations/')
@@ -20,8 +20,16 @@ dict_pd_df_cohort_tables = separate_concentrations_into_cohorts_and_clean(
     dict_parameters,
     pd_df_estimated_concentrations
 )
+pd_df_adelaide_randomisation_schedule = read_clean_adelaide_randomisation_schedule(dict_parameters)
+
 
 pd_df_adelaide = dict_pd_df_cohort_tables["Adelaide"].copy()
+pd_df_adelaide = pd_df_adelaide.merge(
+    pd_df_adelaide_randomisation_schedule,
+    on="patient number",
+    how="left"
+)
+
 pd_df_adelaide = pd_df_adelaide.loc[:, ~pd_df_adelaide.columns.str.endswith("diff")]
 pd_df_adelaide["day"] = 1
 pd_df_adelaide["patient number"] = pd_df_adelaide["patient number"].astype(str)
@@ -29,16 +37,17 @@ pd_df_adelaide.loc[pd_df_adelaide["patient number"].str.endswith("D2"), "day"] =
 pd_df_adelaide["patient number"] = (
     pd_df_adelaide["patient number"].str.replace('-D2', '')
 )
-pd_df_adelaide_day_one = (
-    pd_df_adelaide[pd_df_adelaide["day"] == 1].set_index(["patient number", "time code", "time int"], drop=True)
-)
-pd_df_adelaide_day_two = (
-    pd_df_adelaide[pd_df_adelaide["day"] == 2].set_index(["patient number", "time code", "time int"], drop=True)
-)
 
-pd_df_adelaide_differences = (pd_df_adelaide_day_two - pd_df_adelaide_day_one).abs().reset_index()
-add_concentration_diffs_to_one_cohort_table(dict_parameters, pd_df_adelaide_differences, 1)
-print(pd_df_adelaide_differences)
+
+pd_df_adelaide_is_treated = (
+    pd_df_adelaide[pd_df_adelaide["treatment"] == 1].set_index(["patient number", "time code", "time int"], drop=True)
+)
+pd_df_adelaide_not_treated = (
+    pd_df_adelaide[pd_df_adelaide["treatment"] == 0].set_index(["patient number", "time code", "time int"], drop=True)
+)
+pd_df_adelaide_treatment_differences = (pd_df_adelaide_is_treated - pd_df_adelaide_not_treated).reset_index()
+add_concentration_diffs_to_one_cohort_table(dict_parameters, pd_df_adelaide_treatment_differences, 1)
+
 
 
 layout = html.Div([
@@ -105,8 +114,8 @@ def set_data_type_options(selected_cohort):
         return [
             {'label': 'raw estimates', 'value': 'raw estimates'},
             {'label': 'differences', 'value': 'differences'},
-            {'label': 'treatment absolute differences', 'value': 'treatment absolute differences'},
-            {'label': 'treatment abs diffs with baseline diff', 'value': 'treatment abs diffs with baseline diff'},
+            {'label': 'labelled differences', 'value': 'labelled differences'},
+            {'label': 'labelled diffs with baseline diff', 'value': 'labelled diffs with baseline diff'},
         ]
 
 @callback(
@@ -124,12 +133,12 @@ def update_graph(str_cohort_name, str_analyte, str_data_type, str_plot_type):
     elif str_data_type == "differences":
         str_column_name = str_analyte + " diff"
         pd_df_data = dict_pd_df_cohort_tables[str_cohort_name]
-    elif str_data_type == "treatment absolute differences":
+    elif str_data_type == "labelled differences":
         str_column_name = dict_parameters["column name prefix for estimated concentrations"] + str_analyte
-        pd_df_data = pd_df_adelaide_differences
-    elif str_data_type == "treatment abs diffs with baseline diff":
+        pd_df_data = pd_df_adelaide_treatment_differences
+    elif str_data_type == "labelled diffs with baseline diff":
         str_column_name = str_analyte + " diff"
-        pd_df_data = pd_df_adelaide_differences
+        pd_df_data = pd_df_adelaide_treatment_differences
 
     if str_plot_type == "box":
         fig = px.box(
@@ -148,7 +157,7 @@ def update_graph(str_cohort_name, str_analyte, str_data_type, str_plot_type):
 
     if str_data_type == "raw estimates":
         str_y_label = "concentration (pg/ml)"
-    elif str_data_type in ["differences", "treatment absolute differences", "treatment abs diffs with baseline diff"]:
+    else:
         str_y_label = "diff. in concentration (pg/ml)"
 
     if str_cohort_name == "Melbourne":

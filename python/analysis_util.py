@@ -3,11 +3,16 @@ import pandas as pd
 import numpy as np
 
 
-def add_concentration_diffs_to_one_cohort_table(dict_parameters, pd_df_cohort_table, int_base_time_code):
+def add_concentration_diffs_to_one_cohort_table(dict_parameters, pd_df_cohort_table, int_base_time_code, use_day=False):
+
+    if use_day:
+        list_groupby_columns = ["patient number", "day"]
+    else:
+        list_groupby_columns = ["patient number"]
 
     for str_analyte in dict_parameters["list of analytes"]:
         pd_df_cohort_table[str_analyte + " diff"] = (
-            pd_df_cohort_table.groupby("patient number").apply(
+            pd_df_cohort_table.groupby(list_groupby_columns).apply(
                 lambda x: x["estimated concentration " + str_analyte]
                           - x[x["time int"] == int_base_time_code]["estimated concentration " + str_analyte].iloc[
                               0],

@@ -8,6 +8,44 @@ def get_base_base_directory_path(dict_parameters):
         str_base_directory_path = dict_parameters["docker base directory path"]
     return str_base_directory_path
 
+def read_clean_adelaide_randomisation_schedule(dict_parameters):
+    pd_df_adelaide_randomisation_schedule = pd.read_csv(
+        open(
+            os.path.join(
+                get_base_base_directory_path(dict_parameters),
+                dict_parameters["data directory"],
+                dict_parameters["randomisation schedule file name"],
+            ),
+            "r",
+        )
+    )
+
+    pd_df_adelaide_randomisation_schedule["Rand Number"] = (
+            pd_df_adelaide_randomisation_schedule["Rand Number"].str.lstrip('R').str.zfill(4) + 'A'
+    )
+    pd_df_adelaide_randomisation_schedule.rename(columns={"Rand Number": "patient number"}, inplace=True)
+
+    pd_df_melted_randomisation = pd_df_adelaide_randomisation_schedule.melt(
+        id_vars=["patient number"],
+        value_vars=["Study Day 1", "Study Day 2"],
+        var_name="day",
+        value_name="treatment"
+    )
+    pd_df_melted_randomisation["patient number"] = pd_df_melted_randomisation.apply(
+        lambda row: f"{row['patient number']}-D2" if row["day"] == "Study Day 2" else row["patient number"],
+        axis=1
+    )
+    pd_df_melted_randomisation["treatment"] = pd_df_melted_randomisation["treatment"].map(
+        {
+            "Placebo": 0,
+            "Active": 1,
+        }
+    ).astype(int)
+    pd_df_melted_randomisation = pd_df_melted_randomisation.drop(columns=["day"])
+
+    return pd_df_melted_randomisation
+
+
 #TODO: remove the rbs
 def read_credentials(dict_parameters):
 
